@@ -27,6 +27,10 @@ func (g *Game) DrawCursor(screen *ebiten.Image) {
 	screen.DrawImage(g.imagePacks["UI"].images["cursor0"], op)
 }
 
+func (o *GameObject) CurrSprite() *ebiten.Image {
+	return o.sprites.imagesQ[o.sprIdx]
+}
+
 func (g *Game) DrawMatrixObjectAt(layerZ, x, y int, screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	l := g.matrixLayers[layerZ]

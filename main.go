@@ -27,11 +27,11 @@ type FreeObjectLayer struct {
 }
 
 type Game struct {
-	freeLayers           []*GameObject
-	matrixLayers         []*MatrixLayer
-	matrixLayerNum       int
-	imagePacks           map[string]*ImagePack
-	TESTpawnX, TESTpawnY int
+	freeLayers     []*GameObject
+	matrixLayers   []*MatrixLayer
+	matrixLayerNum int
+	imagePacks     map[string]*ImagePack
+	selectedPawn   *GameObject
 }
 
 func (g *Game) Update() error {
@@ -47,16 +47,14 @@ func main() {
 		freeLayers:     make([]*GameObject, maxNumberOfLayers),
 		matrixLayers:   make([]*MatrixLayer, maxNumberOfLayers),
 		matrixLayerNum: 0,
-		TESTpawnX:      10,
-		TESTpawnY:      5,
+		selectedPawn:   nil,
 	}
 
 	g.Init()
 	g.matrixLayers[0].printMatrix()
 	g.matrixLayers[1].printMatrix()
 
-	g.MoveMatrixObjects(1, 10, 5, 1, 1)
-	g.TESTpawnX, g.TESTpawnY = 1, 1
+	//g.MoveMatrixObjects(1, 10, 5, 1, 1)
 	g.matrixLayers[1].printMatrix()
 	/*
 		g.CreateNewMatrixLayerOnTop("Ground", generalGridSize, generalGridWidth, generalGridHeight)

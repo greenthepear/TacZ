@@ -44,7 +44,7 @@ func initImagePacks() map[string]*ImagePack {
 
 	//Pawns
 	pawnPaths := []string{
-		"Pawns/playerDef"}
+		"Pawns/playerDef", "Pawns/playerSel"}
 	packs["Pawn"] = initOneImagePack(pawnPaths)
 
 	//UI

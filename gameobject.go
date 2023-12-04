@@ -2,34 +2,39 @@ package main
 
 import (
 	"log"
-
-	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type GameObject struct {
-	name    string
-	x, y    int
-	sprites *ImagePack
-	sprIdx  int //Sprite index
-	visible bool
-	tags    []string //Can be used to determine enemies or flammable or something
+	name       string
+	x, y       int
+	sprites    *ImagePack
+	sprIdx     int //Sprite index
+	visible    bool
+	gameRef    *Game
+	tags       []string //Can be used to determine enemies or flammable or something
+	vars       map[string]float64
+	updateFunc func()
+	createFunc func()
 }
 
-func NewGameObject(name string, x, y int, sprites *ImagePack, sprIdx int, visible bool, tags []string) *GameObject {
+func NewGameObject(
+	name string, x, y int, sprites *ImagePack, sprIdx int, visible bool, gameRef *Game,
+	vars map[string]float64, updateFunc func(), createFunc func(), tags []string) *GameObject {
+
 	gobj := &GameObject{
-		name:    name,
-		x:       x,
-		y:       y,
-		sprites: sprites,
-		sprIdx:  sprIdx,
-		visible: visible,
-		tags:    tags,
+		name:       name,
+		x:          x,
+		y:          y,
+		sprites:    sprites,
+		sprIdx:     sprIdx,
+		visible:    visible,
+		gameRef:    gameRef,
+		tags:       tags,
+		vars:       vars,
+		updateFunc: updateFunc,
+		createFunc: createFunc,
 	}
 	return gobj
-}
-
-func (o *GameObject) CurrSprite() *ebiten.Image {
-	return o.sprites.imagesQ[o.sprIdx]
 }
 
 func (g *Game) SimpleCreateObjectInMatrixLayer(matrixLayerZ int, objName string, gridx, gridy int, imagePackName string) *GameObject {
@@ -38,9 +43,17 @@ func (g *Game) SimpleCreateObjectInMatrixLayer(matrixLayerZ int, objName string,
 	}
 
 	objectcell := &g.matrixLayers[matrixLayerZ].mat[gridy][gridx].objects
-	gobj := NewGameObject(objName, 0, 0, g.imagePacks[imagePackName], 0, true, []string{})
+	gobj := NewGameObject(objName, 0, 0, g.imagePacks[imagePackName], 0, true, g, nil, nil, nil, []string{})
 	*objectcell = append(*objectcell, gobj)
 	return gobj
+}
+
+func (g *Game) AddObjectToMatrixLayer(gobj *GameObject, matrixLayerZ, gridx, gridy int) {
+	if g.matrixLayerNum < matrixLayerZ {
+		log.Fatalf("No layer %d", matrixLayerZ)
+	}
+	objectcell := &g.matrixLayers[matrixLayerZ].mat[gridy][gridx].objects
+	*objectcell = append(*objectcell, gobj)
 }
 
 func (g *Game) MoveMatrixObjects(layerZ, fromX, fromY, toX, toY int) {
@@ -48,6 +61,10 @@ func (g *Game) MoveMatrixObjects(layerZ, fromX, fromY, toX, toY int) {
 	o := l.ObjectCellAt(fromX, fromY).objects
 	if len(o) == 0 {
 		log.Fatal("Cell empty.")
+	}
+	for _, obj := range o {
+		obj.x = toX
+		obj.y = toY
 	}
 	g.matrixLayers[layerZ].mat[toY][toX].objects = o
 	g.matrixLayers[layerZ].mat[fromY][fromX].objects = []*GameObject{}

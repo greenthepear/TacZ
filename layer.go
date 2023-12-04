@@ -98,6 +98,24 @@ func (l *MatrixLayer) isOccupied(x, y int) bool {
 	return l.FirstObjectAt(x, y) != nil
 }
 
+func (l *MatrixLayer) findObjectWithTagAt(x, y int, tag string) *GameObject {
+	if !l.isOccupied(x, y) {
+		return nil
+	}
+	for _, obj := range l.AllObjectsAt(x, y) {
+		for _, t := range obj.tags {
+			if t == tag {
+				return obj
+			}
+		}
+	}
+	return nil
+}
+
+func (l *MatrixLayer) hasObjectWithTagAt(x, y int, tag string) bool {
+	return l.findObjectWithTagAt(x, y, tag) == nil
+}
+
 func (l MatrixLayer) printMatrix() {
 	fmt.Printf("Layer '%s' (%d) %d x %d \n", l.name, l.z, l.width, l.height)
 	for y := 0; y < l.height; y++ {
