@@ -20,4 +20,8 @@ func (g *Game) Init() {
 	g.AddObjectToMatrixLayer(NewPawn(g, 1, 1), boardlayer.z, 1, 1)
 	g.AddObjectToMatrixLayer(NewPawn(g, 2, 2), boardlayer.z, 2, 2)
 	g.AddObjectToMatrixLayer(NewPawn(g, 3, 3), boardlayer.z, 3, 3)
+	g.AddObjectToMatrixLayer(NewPawn(g, 4, 4), boardlayer.z, 4, 4)
+
+	g.AddEnemyToLayer(boardlayer.z, 9, 5)
+	g.AddEnemyToLayer(boardlayer.z, 10, 6)
 }

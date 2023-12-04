@@ -14,7 +14,7 @@ type ImagePack struct {
 	imagesQ []*ebiten.Image
 }
 
-func initOneImagePack(paths []string) *ImagePack {
+func initOneImagePack(paths ...string) *ImagePack {
 	imgMap := make(map[string]*ebiten.Image)
 	imgQ := make([]*ebiten.Image, 0)
 	r := regexp.MustCompile(`^[^/]*/`)
@@ -38,19 +38,20 @@ func initOneImagePack(paths []string) *ImagePack {
 func initImagePacks() map[string]*ImagePack {
 	packs := make(map[string]*ImagePack, 0)
 	//Ground
-	groundPaths := []string{
-		"Terrain/terrain0", "Terrain/terrain1", "Terrain/terrain2", "Terrain/terrain3"}
-	packs["Terrain"] = initOneImagePack(groundPaths)
+	packs["Terrain"] = initOneImagePack(
+		"Terrain/terrain0", "Terrain/terrain1", "Terrain/terrain2", "Terrain/terrain3")
 
 	//Pawns
-	pawnPaths := []string{
-		"Pawns/playerDef", "Pawns/playerSel"}
-	packs["Pawn"] = initOneImagePack(pawnPaths)
+	packs["Pawn"] = initOneImagePack(
+		"Pawns/playerDef", "Pawns/playerSel")
 
 	//UI
-	uiPaths := []string{
-		"UI/cursor0"}
-	packs["UI"] = initOneImagePack(uiPaths)
+	packs["UI"] = initOneImagePack(
+		"UI/cursor0")
+
+	//Zombies
+	packs["Zombie"] = initOneImagePack(
+		"Zombies/zombieDef")
 
 	return packs
 }

@@ -32,10 +32,17 @@ type Game struct {
 	matrixLayerNum int
 	imagePacks     map[string]*ImagePack
 	selectedPawn   *GameObject
+	playerTurn     bool
+	enemies        []*GameObject
 }
 
 func (g *Game) Update() error {
-	g.HandleClickControls()
+	if g.playerTurn {
+		g.HandleClickControls()
+		g.checkForTurnEndButton()
+	} else {
+		g.DoEnemyTurn()
+	}
 	return nil
 }
 
@@ -48,6 +55,8 @@ func main() {
 		matrixLayers:   make([]*MatrixLayer, maxNumberOfLayers),
 		matrixLayerNum: 0,
 		selectedPawn:   nil,
+		playerTurn:     true,
+		enemies:        make([]*GameObject, 0),
 	}
 
 	g.Init()

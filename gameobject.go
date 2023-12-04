@@ -53,6 +53,10 @@ func (g *Game) AddObjectToMatrixLayer(gobj *GameObject, matrixLayerZ, gridx, gri
 		log.Fatalf("No layer %d", matrixLayerZ)
 	}
 	objectcell := &g.matrixLayers[matrixLayerZ].mat[gridy][gridx].objects
+	for _, o := range *objectcell {
+		o.x = gridx
+		o.y = gridy
+	}
 	*objectcell = append(*objectcell, gobj)
 }
 

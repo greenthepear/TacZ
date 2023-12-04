@@ -112,6 +112,7 @@ func (l *MatrixLayer) findObjectWithTagAt(x, y int, tag string) *GameObject {
 	return nil
 }
 
+//lint:ignore U1000 shut up lint
 func (l *MatrixLayer) hasObjectWithTagAt(x, y int, tag string) bool {
 	return l.findObjectWithTagAt(x, y, tag) == nil
 }
