@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
@@ -28,6 +30,7 @@ func (g *Game) HandleClickControls() {
 				g.deselectPawn()
 			}
 			g.selectPawn(obj)
+			fmt.Println(g.findWalkable(obj.x, obj.y, 1, 5))
 		} else {
 			g.deselectPawn()
 		}

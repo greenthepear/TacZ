@@ -34,6 +34,7 @@ type Game struct {
 	selectedPawn   *GameObject
 	playerTurn     bool
 	enemies        []*GameObject
+	pawns          []*GameObject
 }
 
 func (g *Game) Update() error {
@@ -57,6 +58,7 @@ func main() {
 		selectedPawn:   nil,
 		playerTurn:     true,
 		enemies:        make([]*GameObject, 0),
+		pawns:          make([]*GameObject, 0),
 	}
 
 	g.Init()

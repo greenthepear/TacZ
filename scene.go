@@ -17,10 +17,16 @@ func (g *Game) Init() {
 	g.InitBackgroundLayer()
 	boardlayer := g.CreateNewMatrixLayerOnTop("Board", generalGridSize, generalGridWidth, generalGridHeight)
 	//g.SimpleCreateObjectInMatrixLayer(boardlayer.z, "Pawn", 10, 5, "Pawn")
-	g.AddObjectToMatrixLayer(NewPawn(g, 1, 1), boardlayer.z, 1, 1)
-	g.AddObjectToMatrixLayer(NewPawn(g, 2, 2), boardlayer.z, 2, 2)
-	g.AddObjectToMatrixLayer(NewPawn(g, 3, 3), boardlayer.z, 3, 3)
-	g.AddObjectToMatrixLayer(NewPawn(g, 4, 4), boardlayer.z, 4, 4)
+	/*
+		g.AddObjectToMatrixLayer(NewPawn(g), boardlayer.z, 1, 1)
+		g.AddObjectToMatrixLayer(NewPawn(g), boardlayer.z, 2, 2)
+		g.AddObjectToMatrixLayer(NewPawn(g), boardlayer.z, 3, 3)
+		g.AddObjectToMatrixLayer(NewPawn(g), boardlayer.z, 4, 4)
+	*/
+	g.AddPawnToLayer(boardlayer.z, 1, 1)
+	g.AddPawnToLayer(boardlayer.z, 2, 1)
+	g.AddPawnToLayer(boardlayer.z, 3, 1)
+	g.AddPawnToLayer(boardlayer.z, 4, 1)
 
 	g.AddEnemyToLayer(boardlayer.z, 9, 5)
 	g.AddEnemyToLayer(boardlayer.z, 10, 6)

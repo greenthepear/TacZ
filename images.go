@@ -19,7 +19,7 @@ func initOneImagePack(paths ...string) *ImagePack {
 	imgQ := make([]*ebiten.Image, 0)
 	r := regexp.MustCompile(`^[^/]*/`)
 	for _, p := range paths {
-		img, _, err := ebitenutil.NewImageFromFile(fmt.Sprintf("./Graphics/%v.png", p))
+		img, _, err := ebitenutil.NewImageFromFile(fmt.Sprintf("./Graphics/%s.png", p))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -47,7 +47,7 @@ func initImagePacks() map[string]*ImagePack {
 
 	//UI
 	packs["UI"] = initOneImagePack(
-		"UI/cursor0")
+		"UI/cursor0", "UI/walkable")
 
 	//Zombies
 	packs["Zombie"] = initOneImagePack(
