@@ -42,6 +42,8 @@ func (g *Game) Update() error {
 		g.HandleClickControls()
 		g.checkForTurnEndButton()
 	} else {
+		g.deselectPawn()
+		g.clearMatrixLayer(underLayerZ)
 		g.DoEnemyTurn()
 	}
 	return nil

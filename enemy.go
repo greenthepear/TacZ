@@ -18,13 +18,12 @@ func (g *Game) AddEnemyToLayer(z, x, y int) {
 
 func (g *Game) DoEnemyTurn() {
 	fmt.Printf("Doing enemy turn...\n")
-	playLayerZ := 1
 	for _, enemy := range g.enemies {
 		//x, y :=
 		possibleMoves := make([]vec, 0, 4)
 		neighboringCells := getNeighboringCellsOfObject(*enemy)
 		for _, v := range neighboringCells {
-			if !g.matrixLayers[playLayerZ].isOccupied(v.x, v.y) {
+			if !g.matrixLayers[boardlayerZ].isOccupied(v.x, v.y) {
 				possibleMoves = append(possibleMoves, v)
 			}
 		}
@@ -35,9 +34,12 @@ func (g *Game) DoEnemyTurn() {
 
 		chosenDirVec := possibleMoves[rand.Intn(len(possibleMoves))]
 
-		g.MoveMatrixObjects(playLayerZ, enemy.x, enemy.y, chosenDirVec.x, chosenDirVec.y)
+		g.MoveMatrixObjects(boardlayerZ, enemy.x, enemy.y, chosenDirVec.x, chosenDirVec.y)
 	}
 
 	fmt.Printf("Doing player turn...\n")
+	for _, pawn := range g.pawns {
+		pawn.vars["leftMovement"] = pawn.vars["maxMovement"]
+	}
 	g.playerTurn = true
 }

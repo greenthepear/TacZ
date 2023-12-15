@@ -20,7 +20,7 @@ func (q *Queue) push(v vec) {
 
 func (q *Queue) pop() (vec, error) {
 	if q.isEmpty() {
-		return vec{0, 0}, fmt.Errorf("popping empty queue")
+		return vec{0, 0, 0}, fmt.Errorf("popping empty queue")
 	}
 	element := q.elements[0]
 	if q.getLen() == 1 {

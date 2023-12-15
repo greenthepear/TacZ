@@ -21,6 +21,11 @@ func NewGameObject(
 	name string, x, y int, sprites *ImagePack, sprIdx int, visible bool, gameRef *Game,
 	vars map[string]float64, updateFunc func(), createFunc func(), tags []string) *GameObject {
 
+	varsmap := vars
+	if vars == nil {
+		varsmap = make(map[string]float64)
+	}
+
 	gobj := &GameObject{
 		name:       name,
 		x:          x,
@@ -30,7 +35,7 @@ func NewGameObject(
 		visible:    visible,
 		gameRef:    gameRef,
 		tags:       tags,
-		vars:       vars,
+		vars:       varsmap,
 		updateFunc: updateFunc,
 		createFunc: createFunc,
 	}

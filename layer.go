@@ -98,6 +98,18 @@ func (l *MatrixLayer) isOccupied(x, y int) bool {
 	return l.FirstObjectAt(x, y) != nil
 }
 
+func (l *MatrixLayer) findObjectWithNameAt(x, y int, name string) *GameObject {
+	if !l.isOccupied(x, y) {
+		return nil
+	}
+	for _, obj := range l.AllObjectsAt(x, y) {
+		if obj.name == name {
+			return obj
+		}
+	}
+	return nil
+}
+
 func (l *MatrixLayer) findObjectWithTagAt(x, y int, tag string) *GameObject {
 	if !l.isOccupied(x, y) {
 		return nil
@@ -130,4 +142,12 @@ func (l MatrixLayer) printMatrix() {
 		fmt.Print("\n")
 	}
 	fmt.Print("\n")
+}
+
+func (g *Game) clearMatrixLayer(layerZ int) {
+	for y := range g.matrixLayers[layerZ].mat {
+		for x := range g.matrixLayers[layerZ].mat[y] {
+			g.matrixLayers[layerZ].mat[y][x] = NewObjectCell(x, y)
+		}
+	}
 }

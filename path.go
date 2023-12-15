@@ -5,27 +5,28 @@ import "log"
 
 type vec struct {
 	x, y int
+	dist int //for pathfinding
 }
 
-func getNeighboringCells(x, y int) []vec {
+func getNeighboringCells(v vec) []vec {
 	possibleMoves := make([]vec, 0, 4)
-	if y != 0 {
-		possibleMoves = append(possibleMoves, vec{x, y - 1})
+	if v.y != 0 {
+		possibleMoves = append(possibleMoves, vec{v.x, v.y - 1, v.dist})
 	}
-	if y != generalGridHeight-1 {
-		possibleMoves = append(possibleMoves, vec{x, y + 1})
+	if v.y != generalGridHeight-1 {
+		possibleMoves = append(possibleMoves, vec{v.x, v.y + 1, v.dist})
 	}
-	if x != 0 {
-		possibleMoves = append(possibleMoves, vec{x - 1, y})
+	if v.x != 0 {
+		possibleMoves = append(possibleMoves, vec{v.x - 1, v.y, v.dist})
 	}
-	if x != generalGridWidth-1 {
-		possibleMoves = append(possibleMoves, vec{x + 1, y})
+	if v.x != generalGridWidth-1 {
+		possibleMoves = append(possibleMoves, vec{v.x + 1, v.y, v.dist})
 	}
 	return possibleMoves
 }
 
 func getNeighboringCellsOfObject(gobj GameObject) []vec {
-	return getNeighboringCells(gobj.x, gobj.y)
+	return getNeighboringCells(vec{gobj.x, gobj.y, 0})
 }
 
 // Find points (generate slice of vectors)
@@ -35,7 +36,7 @@ func (g *Game) findWalkable(fromX, fromY, layerZ, distance int) []vec {
 	vecs := make([]vec, 0)
 
 	q := Queue{}
-	q.push(vec{fromX, fromY})
+	q.push(vec{fromX, fromY, 0})
 
 	wasVisited := make([][]bool, generalGridHeight)
 	for i := range wasVisited {
@@ -54,11 +55,15 @@ func (g *Game) findWalkable(fromX, fromY, layerZ, distance int) []vec {
 			vecs = append(vecs, cell)
 		}
 
-		neighbors := getNeighboringCells(cell.x, cell.y)
+		neighbors := getNeighboringCells(cell)
+		if distances[cell] > distance-1 {
+			continue
+		}
 		for _, nc := range neighbors {
-			if !wasVisited[nc.y][nc.x] { //&& !g.MatrixLayerAtZ(layerZ).isOccupied(cell.x, cell.y) {
+			if !wasVisited[nc.y][nc.x] && !g.MatrixLayerAtZ(layerZ).isOccupied(nc.x, nc.y) {
 				wasVisited[nc.y][nc.x] = true
-				distances[nc] = distances[cell] + 1
+				nc.dist = distances[cell] + 1
+				distances[nc] = nc.dist
 				q.push(nc)
 			}
 		}

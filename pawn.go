@@ -19,7 +19,18 @@ func (g *Game) selectPawn(pawnObj *GameObject) {
 }
 
 func (g *Game) deselectPawn() {
+	if g.selectedPawn == nil {
+		return
+	}
 	g.selectedPawn.vars["isSelected"] = 0
 	g.selectedPawn.sprIdx = 0
 	g.selectedPawn = nil
+}
+
+func (g *Game) createWalkables(vecs []vec, layerZ int) {
+	for _, v := range vecs {
+		obj := g.SimpleCreateObjectInMatrixLayer(underLayerZ, "walkable", v.x, v.y, "UI")
+		obj.vars["dist"] = float64(v.dist)
+		obj.sprIdx = 1
+	}
 }

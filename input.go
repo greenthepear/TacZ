@@ -19,20 +19,27 @@ func (g *Game) HandleClickControls() {
 	sx /= int(generalGridSize)
 	sy /= int(generalGridSize)
 
-	if g.selectedPawn != nil && !g.matrixLayers[1].isOccupied(sx, sy) {
-		g.MoveMatrixObjects(1, g.selectedPawn.x, g.selectedPawn.y, sx, sy)
+	objWalkable := g.MatrixLayerAtZ(underLayerZ).findObjectWithNameAt(sx, sy, "walkable")
+	if g.selectedPawn != nil && objWalkable != nil && !g.MatrixLayerAtZ(boardlayerZ).isOccupied(sx, sy) {
+		g.MoveMatrixObjects(boardlayerZ, g.selectedPawn.x, g.selectedPawn.y, sx, sy)
+		g.selectedPawn.vars["leftMovement"] -= objWalkable.vars["dist"]
+		g.clearMatrixLayer(underLayerZ)
+		g.createWalkables(g.findWalkable(g.selectedPawn.x, g.selectedPawn.y, boardlayerZ, int(g.selectedPawn.vars["leftMovement"])), underLayerZ)
 		return
 	}
 
-	if obj := g.matrixLayers[1].findObjectWithTagAt(sx, sy, "selectable"); obj != nil {
+	if obj := g.matrixLayers[boardlayerZ].findObjectWithTagAt(sx, sy, "selectable"); obj != nil {
 		if g.selectedPawn != obj {
 			if g.selectedPawn != nil {
 				g.deselectPawn()
+				g.clearMatrixLayer(underLayerZ)
 			}
 			g.selectPawn(obj)
-			fmt.Println(g.findWalkable(obj.x, obj.y, 1, 5))
+			fmt.Println(g.findWalkable(obj.x, obj.y, boardlayerZ, int(obj.vars["leftMovement"])))
+			g.createWalkables(g.findWalkable(obj.x, obj.y, boardlayerZ, int(obj.vars["leftMovement"])), underLayerZ)
 		} else {
 			g.deselectPawn()
+			g.clearMatrixLayer(underLayerZ)
 		}
 	}
 }
