@@ -1,7 +1,7 @@
 package main
 
 func NewPawn(game *Game, x, y int) *GameObject {
-	return NewGameObject("Pawn", x, y, game.imagePacks["Pawn"], 0, true, game,
+	return NewGameObject("Pawn", x, y, game.imagePacks["Pawn"], false, 0, "", true, game,
 		map[string]float64{"isSelected": 0, "maxMovement": 5, "leftMovement": 5},
 		nil, nil, []string{"selectable"})
 }
@@ -29,7 +29,7 @@ func (g *Game) deselectPawn() {
 
 func (g *Game) createWalkables(vecs []vec, layerZ int) {
 	for _, v := range vecs {
-		obj := g.SimpleCreateObjectInMatrixLayer(underLayerZ, "walkable", v.x, v.y, "UI")
+		obj := g.SimpleCreateObjectInMatrixLayer(underLayerZ, "walkable", v.x, v.y, "UI", false)
 		obj.vars["dist"] = float64(v.dist)
 		obj.sprIdx = 1
 	}

@@ -28,6 +28,9 @@ func (g *Game) DrawCursor(screen *ebiten.Image) {
 }
 
 func (o *GameObject) CurrSprite() *ebiten.Image {
+	if o.sprMapMode {
+		return o.sprites.images[o.sprKey]
+	}
 	return o.sprites.imagesQ[o.sprIdx]
 }
 

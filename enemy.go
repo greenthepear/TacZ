@@ -6,7 +6,7 @@ import (
 )
 
 func NewEnemy(game *Game, x, y int) *GameObject {
-	return NewGameObject("Zombie", x, y, game.imagePacks["Zombie"], 0, true, game,
+	return NewGameObject("Zombie", x, y, game.imagePacks["Zombie"], false, 0, "", true, game,
 		map[string]float64{}, nil, nil, []string{"enemy"})
 }
 

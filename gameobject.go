@@ -5,11 +5,15 @@ import (
 )
 
 type GameObject struct {
-	name       string
-	x, y       int
+	name string
+	x, y int
+
 	sprites    *ImagePack
-	sprIdx     int //Sprite index
+	sprMapMode bool
+	sprIdx     int    //Sprite index
+	sprKey     string //Sprite key, if in mapMode
 	visible    bool
+
 	gameRef    *Game
 	tags       []string //Can be used to determine enemies or flammable or something
 	vars       map[string]float64
@@ -18,7 +22,7 @@ type GameObject struct {
 }
 
 func NewGameObject(
-	name string, x, y int, sprites *ImagePack, sprIdx int, visible bool, gameRef *Game,
+	name string, x, y int, sprites *ImagePack, mapMode bool, sprIdx int, sprMap string, visible bool, gameRef *Game,
 	vars map[string]float64, updateFunc func(), createFunc func(), tags []string) *GameObject {
 
 	varsmap := vars
@@ -31,6 +35,7 @@ func NewGameObject(
 		x:          x,
 		y:          y,
 		sprites:    sprites,
+		sprMapMode: mapMode,
 		sprIdx:     sprIdx,
 		visible:    visible,
 		gameRef:    gameRef,
@@ -42,13 +47,24 @@ func NewGameObject(
 	return gobj
 }
 
-func (g *Game) SimpleCreateObjectInMatrixLayer(matrixLayerZ int, objName string, gridx, gridy int, imagePackName string) *GameObject {
+func (g *Game) SimpleCreateObjectInMatrixLayer(matrixLayerZ int, objName string, gridx, gridy int, imagePackName string, sprMapMode bool) *GameObject {
 	if g.matrixLayerNum < matrixLayerZ {
 		log.Fatalf("No layer %d", matrixLayerZ)
 	}
 
+	imgPack := g.imagePacks[imagePackName]
+	imgPackImages := imgPack.images
+	sprKey := ""
+	if sprMapMode {
+		for k := range imgPackImages { //random key
+			sprKey = k
+			break
+		}
+	}
+
 	objectcell := &g.matrixLayers[matrixLayerZ].mat[gridy][gridx].objects
-	gobj := NewGameObject(objName, 0, 0, g.imagePacks[imagePackName], 0, true, g, nil, nil, nil, []string{})
+	gobj := NewGameObject(objName, 0, 0, imgPack, sprMapMode, 0, sprKey, true, g, nil, nil, nil, []string{})
+	//objName, 0, 0, imgPack, sprMapMode, 0, sprKey, g, nil, nil, nil, []string{})
 	*objectcell = append(*objectcell, gobj)
 	return gobj
 }

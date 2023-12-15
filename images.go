@@ -35,7 +35,7 @@ func initOneImagePack(paths ...string) *ImagePack {
 	return pack
 }
 
-func initImagePacks() map[string]*ImagePack {
+func initImagePacks() map[string]*ImagePack { //TODO: just autoload
 	packs := make(map[string]*ImagePack, 0)
 	//Ground
 	packs["Terrain"] = initOneImagePack(
@@ -52,6 +52,16 @@ func initImagePacks() map[string]*ImagePack {
 	//Zombies
 	packs["Zombie"] = initOneImagePack(
 		"Zombies/zombieDef")
+
+	//Obstacles
+	packs["Obstacles"] = initOneImagePack(
+		"Obstacles/gravestone")
+
+	packs["Obstacles/Fences"] = initOneImagePack(
+		"Obstacles/Fences/fence1", "Obstacles/Fences/fence2", "Obstacles/Fences/fence3",
+		"Obstacles/Fences/fenceEndMid", "Obstacles/Fences/fenceUpLeft",
+		"Obstacles/Fences/fenceEndLeft",
+		"Obstacles/Fences/fenceEndRight", "Obstacles/Fences/fenceUpRight")
 
 	return packs
 }
