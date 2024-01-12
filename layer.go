@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 )
 
 type px int
@@ -152,4 +153,16 @@ func NewFreeObjectLayer(name string, z int) *FreeObjectLayer {
 		z:       z,
 		objects: make([]*GameObject, 0),
 	}
+}
+
+func (g *Game) CreateNewFreeLayerOnTop(name string) {
+	l := NewFreeObjectLayer(name, len(g.freeLayers))
+	g.freeLayers = append(g.freeLayers, l)
+}
+
+func (g *Game) AddObjectToFreeLayer(z int, o *GameObject) {
+	if z > len(g.freeLayers) {
+		log.Fatalf("Error while adding object:\n\n%v\n\nNo layer `%d`", o, z)
+	}
+	g.freeLayers[z].objects = append(g.freeLayers[z].objects, o)
 }

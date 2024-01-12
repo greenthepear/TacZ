@@ -77,6 +77,7 @@ func (g *Game) DrawAllFreeLayers(screen *ebiten.Image) {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.DrawAllMatrixLayers(screen)
+	g.DrawAllFreeLayers(screen)
 	g.DrawCursor(screen)
 }
 

@@ -41,8 +41,6 @@ func (g *Game) Update() error {
 }
 
 func main() {
-	ebiten.SetWindowSize(screenWidth*4, screenHeight*4)
-	ebiten.SetWindowTitle("TacZ")
 	g := &Game{
 		imagePacks:   initImagePacks(),
 		freeLayers:   make([]*FreeObjectLayer, 0),
@@ -54,6 +52,9 @@ func main() {
 	}
 
 	g.Init()
+
+	ebiten.SetWindowSize(screenWidth*4, screenHeight*4)
+	ebiten.SetWindowTitle("TacZ")
 
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)

@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
@@ -35,7 +33,7 @@ func (g *Game) HandleClickControls() {
 				g.clearMatrixLayer(underLayerZ)
 			}
 			g.selectPawn(obj)
-			fmt.Println(g.findWalkable(obj.x, obj.y, boardlayerZ, int(obj.vars["leftMovement"])))
+			//fmt.Println(g.findWalkable(obj.x, obj.y, boardlayerZ, int(obj.vars["leftMovement"])))
 			g.createWalkables(g.findWalkable(obj.x, obj.y, boardlayerZ, int(obj.vars["leftMovement"])), underLayerZ)
 		} else {
 			g.deselectPawn()

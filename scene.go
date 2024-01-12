@@ -63,4 +63,10 @@ func (g *Game) Init() {
 	g.AddEnemyToLayer(boardlayerZ, 10, 6)
 
 	g.InitObstacles(10)
+
+	g.CreateNewFreeLayerOnTop("freeLayerTest")
+	g.AddObjectToFreeLayer(0,
+		NewGameObject(
+			"test", 60, 80, g.imagePacks["UI"], false, 1, "UI/walkable", true, g, nil, nil, nil, nil),
+	)
 }
