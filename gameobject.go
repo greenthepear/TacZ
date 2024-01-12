@@ -48,7 +48,7 @@ func NewGameObject(
 }
 
 func (g *Game) SimpleCreateObjectInMatrixLayer(matrixLayerZ int, objName string, gridx, gridy int, imagePackName string, sprMapMode bool) *GameObject {
-	if g.matrixLayerNum < matrixLayerZ {
+	if len(g.matrixLayers) < matrixLayerZ {
 		log.Fatalf("No layer %d", matrixLayerZ)
 	}
 
@@ -64,13 +64,13 @@ func (g *Game) SimpleCreateObjectInMatrixLayer(matrixLayerZ int, objName string,
 
 	objectcell := &g.matrixLayers[matrixLayerZ].mat[gridy][gridx].objects
 	gobj := NewGameObject(objName, 0, 0, imgPack, sprMapMode, 0, sprKey, true, g, nil, nil, nil, []string{})
-	//objName, 0, 0, imgPack, sprMapMode, 0, sprKey, g, nil, nil, nil, []string{})
+
 	*objectcell = append(*objectcell, gobj)
 	return gobj
 }
 
 func (g *Game) AddObjectToMatrixLayer(gobj *GameObject, matrixLayerZ, gridx, gridy int) {
-	if g.matrixLayerNum < matrixLayerZ {
+	if len(g.matrixLayers) < matrixLayerZ {
 		log.Fatalf("No layer %d", matrixLayerZ)
 	}
 	objectcell := &g.matrixLayers[matrixLayerZ].mat[gridy][gridx].objects

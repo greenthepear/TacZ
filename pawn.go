@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 func NewPawn(game *Game, x, y int) *GameObject {
 	return NewGameObject("Pawn", x, y, game.imagePacks["Pawn"], false, 0, "", true, game,
 		map[string]float64{"isSelected": 0, "maxMovement": 5, "leftMovement": 5},
@@ -33,4 +35,12 @@ func (g *Game) createWalkables(vecs []vec, layerZ int) {
 		obj.vars["dist"] = float64(v.dist)
 		obj.sprIdx = 1
 	}
+}
+
+func (g *Game) initPlayerTurn() {
+	fmt.Printf("Doing player turn...\n")
+	for _, pawn := range g.pawns {
+		pawn.vars["leftMovement"] = pawn.vars["maxMovement"]
+	}
+	g.playerTurn = true
 }

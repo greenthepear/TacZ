@@ -55,10 +55,10 @@ func (g *Game) findWalkable(fromX, fromY, layerZ, distance int) []vec {
 			vecs = append(vecs, cell)
 		}
 
-		neighbors := getNeighboringCells(cell)
 		if distances[cell] > distance-1 {
 			continue
 		}
+		neighbors := getNeighboringCells(cell)
 		for _, nc := range neighbors {
 			if !wasVisited[nc.y][nc.x] && !g.MatrixLayerAtZ(layerZ).isOccupied(nc.x, nc.y) {
 				wasVisited[nc.y][nc.x] = true

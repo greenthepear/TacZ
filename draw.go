@@ -43,8 +43,8 @@ func (g *Game) DrawMatrixObjectAt(layerZ, x, y int, screen *ebiten.Image) {
 	screen.DrawImage(img, op)
 }
 
-func (g *Game) DrawMatrixLayer(z int, screen *ebiten.Image) {
-	l := g.matrixLayers[z]
+func (g *Game) DrawMatrixLayer(l *MatrixLayer, screen *ebiten.Image) {
+	z := l.z
 	for y := 0; y < l.height; y++ {
 		for x := 0; x < l.width; x++ {
 			if g.matrixLayers[z].isOccupied(x, y) {
@@ -55,8 +55,23 @@ func (g *Game) DrawMatrixLayer(z int, screen *ebiten.Image) {
 }
 
 func (g *Game) DrawAllMatrixLayers(screen *ebiten.Image) {
-	for i := 0; i < g.matrixLayerNum; i++ {
-		g.DrawMatrixLayer(i, screen)
+	for _, l := range g.matrixLayers {
+		g.DrawMatrixLayer(l, screen)
+	}
+}
+
+func (g *Game) DrawFreeLayer(l *FreeObjectLayer, screen *ebiten.Image) {
+	for _, o := range l.objects {
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Translate(float64(o.x), float64(o.y))
+		img := o.CurrSprite()
+		screen.DrawImage(img, op)
+	}
+}
+
+func (g *Game) DrawAllFreeLayers(screen *ebiten.Image) {
+	for _, l := range g.freeLayers {
+		g.DrawFreeLayer(l, screen)
 	}
 }
 

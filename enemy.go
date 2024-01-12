@@ -37,9 +37,5 @@ func (g *Game) DoEnemyTurn() {
 		g.MoveMatrixObjects(boardlayerZ, enemy.x, enemy.y, chosenDirVec.x, chosenDirVec.y)
 	}
 
-	fmt.Printf("Doing player turn...\n")
-	for _, pawn := range g.pawns {
-		pawn.vars["leftMovement"] = pawn.vars["maxMovement"]
-	}
-	g.playerTurn = true
+	g.initPlayerTurn()
 }

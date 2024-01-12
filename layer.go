@@ -51,22 +51,9 @@ func NewMatrixLayer(name string, z int, squareLength px, width, height int) *Mat
 	}
 }
 
-/*
-func (g *Game) CreateNewMatrixLayerAtZ(z int, name string, squareLength px, width, height int) {
-	if z < 0 || z > maxNumberOfLayers {
-		log.Fatal("z not withing layer range")
-	}
-	if g.matrixLayers[z] != nil {
-		log.Fatalf("z already occupied by layer \"%s\"", g.matrixLayers[z].name)
-	}
-	g.matrixLayers[z] = NewMatrixLayer(name, z, squareLength, width, height)
-}
-*/
-
 func (g *Game) CreateNewMatrixLayerOnTop(name string, squareLength px, width, height int) *MatrixLayer {
-	ln := g.matrixLayerNum
-	g.matrixLayers[ln] = NewMatrixLayer(name, ln, squareLength, width, height)
-	g.matrixLayerNum++
+	ln := len(g.matrixLayers)
+	g.matrixLayers = append(g.matrixLayers, NewMatrixLayer(name, ln, squareLength, width, height))
 	return g.matrixLayers[ln]
 }
 
@@ -129,6 +116,7 @@ func (l *MatrixLayer) hasObjectWithTagAt(x, y int, tag string) bool {
 	return l.findObjectWithTagAt(x, y, tag) == nil
 }
 
+//lint:ignore U1000 its for debugging
 func (l MatrixLayer) printMatrix() {
 	fmt.Printf("Layer '%s' (%d) %d x %d \n", l.name, l.z, l.width, l.height)
 	for y := 0; y < l.height; y++ {
@@ -149,5 +137,19 @@ func (g *Game) clearMatrixLayer(layerZ int) {
 		for x := range g.matrixLayers[layerZ].mat[y] {
 			g.matrixLayers[layerZ].mat[y][x] = NewObjectCell(x, y)
 		}
+	}
+}
+
+type FreeObjectLayer struct {
+	name    string
+	z       int
+	objects []*GameObject
+}
+
+func NewFreeObjectLayer(name string, z int) *FreeObjectLayer {
+	return &FreeObjectLayer{
+		name:    name,
+		z:       z,
+		objects: make([]*GameObject, 0),
 	}
 }
