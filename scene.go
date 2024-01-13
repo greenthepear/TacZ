@@ -9,8 +9,12 @@ const (
 	boardlayerZ      = 2
 )
 
+const (
+	pawnInfoLayerZ = 0
+)
+
 func (g *Game) InitBackgroundLayer() {
-	layer := g.CreateNewMatrixLayerOnTop("Background", generalGridSize, generalGridWidth, generalGridHeight)
+	layer := g.CreateNewMatrixLayerOnTop("Background", generalGridSize, generalGridWidth, generalGridHeight, 0, 0)
 	for y := 0; y < layer.height; y++ {
 		for x := 0; x < layer.width; x++ {
 			gobj := g.SimpleCreateObjectInMatrixLayer(layer.z, "sGround", x, y, "Terrain", false)
@@ -20,24 +24,24 @@ func (g *Game) InitBackgroundLayer() {
 }
 
 func (g *Game) InitObstacles(randomObstacleNum int) {
-	gobj := g.SimpleCreateObjectInMatrixLayer(boardlayerZ, "fence", 13, 0, "Obstacles/Fences", true)
-	gobj.sprKey = "Fences/fenceUpLeft"
-	gobj = g.SimpleCreateObjectInMatrixLayer(boardlayerZ, "fence", 13, 2, "Obstacles/Fences", true)
-	gobj.sprKey = "Fences/fenceUpLeft"
-	gobj = g.SimpleCreateObjectInMatrixLayer(boardlayerZ, "fence", 13, 3, "Obstacles/Fences", true)
-	gobj.sprKey = "Fences/fenceEndLeft"
+	type fence struct {
+		x, y   int
+		suffix string
+	}
 
-	gobj = g.SimpleCreateObjectInMatrixLayer(boardlayerZ, "fence", 14, 3, "Obstacles/Fences", true)
-	gobj.sprKey = "Fences/fenceEndMid"
-	gobj = g.SimpleCreateObjectInMatrixLayer(boardlayerZ, "fence", 15, 3, "Obstacles/Fences", true)
-	gobj.sprKey = "Fences/fence2"
-	gobj = g.SimpleCreateObjectInMatrixLayer(boardlayerZ, "fence", 16, 3, "Obstacles/Fences", true)
-	gobj.sprKey = "Fences/fence3"
-	gobj = g.SimpleCreateObjectInMatrixLayer(boardlayerZ, "fence", 17, 3, "Obstacles/Fences", true)
-	gobj.sprKey = "Fences/fenceEndRight"
+	makeFence := func(f fence) {
+		gobj := g.SimpleCreateObjectInMatrixLayer(boardlayerZ, "fence", f.x, f.y, "Obstacles/Fences", true)
+		gobj.sprKey = "Fences/fence" + f.suffix
+	}
 
-	gobj = g.SimpleCreateObjectInMatrixLayer(boardlayerZ, "fence", 19, 3, "Obstacles/Fences", true)
-	gobj.sprKey = "Fences/fenceEndLeft"
+	fences := [...]fence{
+		{13, 0, "UpLeft"}, {13, 2, "UpLeft"}, {13, 3, "EndLeft"},
+		{14, 3, "EndMid"}, {15, 3, "2"}, {16, 3, "3"}, {17, 3, "EndRight"}, {19, 3, "EndLeft"},
+	}
+
+	for _, f := range fences {
+		makeFence(f)
+	}
 
 	//Random grave stones
 	for i := 0; i < randomObstacleNum; i++ {
@@ -51,8 +55,8 @@ func (g *Game) InitObstacles(randomObstacleNum int) {
 
 func (g *Game) Init() {
 	g.InitBackgroundLayer()
-	g.CreateNewMatrixLayerOnTop("Under", generalGridSize, generalGridWidth, generalGridHeight)
-	g.CreateNewMatrixLayerOnTop("Board", generalGridSize, generalGridWidth, generalGridHeight)
+	g.CreateNewMatrixLayerOnTop("Under", generalGridSize, generalGridWidth, generalGridHeight, 0, 0)
+	g.CreateNewMatrixLayerOnTop("Board", generalGridSize, generalGridWidth, generalGridHeight, 0, 0)
 
 	g.AddPawnToLayer(boardlayerZ, 1, 1)
 	g.AddPawnToLayer(boardlayerZ, 2, 1)
@@ -64,9 +68,5 @@ func (g *Game) Init() {
 
 	g.InitObstacles(10)
 
-	g.CreateNewFreeLayerOnTop("freeLayerTest")
-	g.AddObjectToFreeLayer(0,
-		NewGameObject(
-			"test", 60, 80, g.imagePacks["UI"], false, 1, "UI/walkable", true, g, nil, nil, nil, nil),
-	)
+	g.CreateNewFreeLayerOnTop("pawnInfoLayer")
 }

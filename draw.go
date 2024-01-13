@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -29,7 +30,13 @@ func (g *Game) DrawCursor(screen *ebiten.Image) {
 
 func (o *GameObject) CurrSprite() *ebiten.Image {
 	if o.sprMapMode {
+		if o.sprites.images[o.sprKey] == nil {
+			log.Fatalf("No sprite under key \"%v\"", o.sprKey)
+		}
 		return o.sprites.images[o.sprKey]
+	}
+	if o.sprites.imagesQ[o.sprIdx] == nil {
+		log.Fatalf("No sprite under index \"%v\"", o.sprKey)
 	}
 	return o.sprites.imagesQ[o.sprIdx]
 }
@@ -38,7 +45,7 @@ func (g *Game) DrawMatrixObjectAt(layerZ, x, y int, screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	l := g.matrixLayers[layerZ]
 	gx, gy := float64(x*int(l.squareLength)), float64(y*int(l.squareLength))
-	op.GeoM.Translate(gx, gy)
+	op.GeoM.Translate(gx+l.xOffset, gy+l.yOffset)
 	img := l.FirstObjectAt(x, y).CurrSprite()
 	screen.DrawImage(img, op)
 }
@@ -79,8 +86,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.DrawAllMatrixLayers(screen)
 	g.DrawAllFreeLayers(screen)
 	g.DrawCursor(screen)
+	g.DrawSelectedPawnInfo(screen)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return screenWidth, screenHeight
+	return boardWidth, boardHeight + bottomHeight
 }

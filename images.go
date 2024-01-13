@@ -63,5 +63,8 @@ func initImagePacks() map[string]*ImagePack { //TODO: just autoload
 		"Obstacles/Fences/fenceEndLeft",
 		"Obstacles/Fences/fenceEndRight", "Obstacles/Fences/fenceUpRight")
 
+	packs["Attacks"] = initOneImagePack(
+		"Attacks/shove", "Attacks/throwRock")
+
 	return packs
 }

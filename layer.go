@@ -13,11 +13,12 @@ type ObjectCell struct {
 }
 
 type MatrixLayer struct {
-	name          string
-	z             int
-	squareLength  px
-	width, height int
-	mat           [][]*ObjectCell
+	name             string
+	z                int
+	squareLength     px
+	width, height    int
+	mat              [][]*ObjectCell
+	xOffset, yOffset float64
 }
 
 func NewObjectCell(x, y int) *ObjectCell {
@@ -41,7 +42,7 @@ func NewObjectMatrix(width, height int) [][]*ObjectCell {
 	return m
 }
 
-func NewMatrixLayer(name string, z int, squareLength px, width, height int) *MatrixLayer {
+func NewMatrixLayer(name string, z int, squareLength px, width, height int, xOffset, yOffset float64) *MatrixLayer {
 	return &MatrixLayer{
 		name:         name,
 		z:            z,
@@ -49,12 +50,14 @@ func NewMatrixLayer(name string, z int, squareLength px, width, height int) *Mat
 		width:        width,
 		height:       height,
 		mat:          NewObjectMatrix(width, height),
+		xOffset:      xOffset,
+		yOffset:      yOffset,
 	}
 }
 
-func (g *Game) CreateNewMatrixLayerOnTop(name string, squareLength px, width, height int) *MatrixLayer {
+func (g *Game) CreateNewMatrixLayerOnTop(name string, squareLength px, width, height int, xOffset, yOffset float64) *MatrixLayer {
 	ln := len(g.matrixLayers)
-	g.matrixLayers = append(g.matrixLayers, NewMatrixLayer(name, ln, squareLength, width, height))
+	g.matrixLayers = append(g.matrixLayers, NewMatrixLayer(name, ln, squareLength, width, height, xOffset, yOffset))
 	return g.matrixLayers[ln]
 }
 
@@ -165,4 +168,8 @@ func (g *Game) AddObjectToFreeLayer(z int, o *GameObject) {
 		log.Fatalf("Error while adding object:\n\n%v\n\nNo layer `%d`", o, z)
 	}
 	g.freeLayers[z].objects = append(g.freeLayers[z].objects, o)
+}
+
+func (g *Game) ClearFreeLayer(layerZ int) {
+	g.freeLayers[layerZ].objects = make([]*GameObject, 0)
 }

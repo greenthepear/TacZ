@@ -10,7 +10,7 @@ func (g *Game) HandleClickControls() {
 		return
 	}
 	cx, cy := ebiten.CursorPosition()
-	if cx < 0 || cx >= screenWidth || cy < 0 || cy >= screenHeight {
+	if cx < 0 || cx >= boardWidth || cy < 0 || cy >= boardHeight {
 		return
 	}
 	sx, sy := snapXYtoGrid(generalGridSize, cx, cy)

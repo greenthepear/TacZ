@@ -3,8 +3,15 @@ package main
 import "fmt"
 
 func NewPawn(game *Game, x, y int) *GameObject {
+	pawnVariables := map[string]float64{
+		"isSelected":   0,
+		"maxMovement":  5,
+		"leftMovement": 5,
+		"leftHP":       3,
+		"maxHP":        3,
+	}
 	return NewGameObject("Pawn", x, y, game.imagePacks["Pawn"], false, 0, "", true, game,
-		map[string]float64{"isSelected": 0, "maxMovement": 5, "leftMovement": 5},
+		pawnVariables,
 		nil, nil, []string{"selectable"})
 }
 

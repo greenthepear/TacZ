@@ -7,14 +7,15 @@ import (
 )
 
 var (
-	screenWidth  = 320
-	screenHeight = 160
+	bottomHeight = 40
+	boardWidth   = 320
+	boardHeight  = 160
 )
 
 var (
 	generalGridSize   px = 16
-	generalGridWidth     = screenWidth / int(generalGridSize)
-	generalGridHeight    = screenHeight / int(generalGridSize)
+	generalGridWidth     = boardWidth / int(generalGridSize)
+	generalGridHeight    = boardHeight / int(generalGridSize)
 )
 
 type Game struct {
@@ -52,8 +53,9 @@ func main() {
 	}
 
 	g.Init()
+	initFonts()
 
-	ebiten.SetWindowSize(screenWidth*4, screenHeight*4)
+	ebiten.SetWindowSize(boardWidth*4, (boardHeight+bottomHeight)*4)
 	ebiten.SetWindowTitle("TacZ")
 
 	if err := ebiten.RunGame(g); err != nil {
