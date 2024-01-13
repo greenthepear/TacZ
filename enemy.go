@@ -6,8 +6,12 @@ import (
 )
 
 func NewEnemy(game *Game, x, y int) *GameObject {
+	enemyVars := map[string]float64{
+		"leftHP": 3,
+		"maxHP":  3,
+	}
 	return NewGameObject("Zombie", x, y, game.imagePacks["Zombie"], false, 0, "", true, game,
-		map[string]float64{}, nil, nil, []string{"enemy"})
+		enemyVars, nil, nil, []string{"enemy"})
 }
 
 func (g *Game) AddEnemyToLayer(z, x, y int) {
@@ -19,7 +23,6 @@ func (g *Game) AddEnemyToLayer(z, x, y int) {
 func (g *Game) DoEnemyTurn() {
 	fmt.Printf("Doing enemy turn...\n")
 	for _, enemy := range g.enemies {
-		//x, y :=
 		possibleMoves := make([]vec, 0, 4)
 		neighboringCells := getNeighboringCellsOfObject(*enemy)
 		for _, v := range neighboringCells {

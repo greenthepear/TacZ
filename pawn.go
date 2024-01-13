@@ -9,6 +9,9 @@ func NewPawn(game *Game, x, y int) *GameObject {
 		"leftMovement": 5,
 		"leftHP":       3,
 		"maxHP":        3,
+		"hasShove":     1,
+		"hasThrowRock": 1,
+		"canAttack":    1,
 	}
 	return NewGameObject("Pawn", x, y, game.imagePacks["Pawn"], false, 0, "", true, game,
 		pawnVariables,

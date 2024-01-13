@@ -37,6 +37,7 @@ func NewGameObject(
 		sprites:    sprites,
 		sprMapMode: mapMode,
 		sprIdx:     sprIdx,
+		sprKey:     sprMap,
 		visible:    visible,
 		gameRef:    gameRef,
 		tags:       tags,
@@ -63,7 +64,7 @@ func (g *Game) SimpleCreateObjectInMatrixLayer(matrixLayerZ int, objName string,
 	}
 
 	objectcell := &g.matrixLayers[matrixLayerZ].mat[gridy][gridx].objects
-	gobj := NewGameObject(objName, 0, 0, imgPack, sprMapMode, 0, sprKey, true, g, nil, nil, nil, []string{})
+	gobj := NewGameObject(objName, gridx, gridy, imgPack, sprMapMode, 0, sprKey, true, g, nil, nil, nil, []string{})
 
 	*objectcell = append(*objectcell, gobj)
 	return gobj
@@ -73,6 +74,7 @@ func (g *Game) AddObjectToMatrixLayer(gobj *GameObject, matrixLayerZ, gridx, gri
 	if len(g.matrixLayers) < matrixLayerZ {
 		log.Fatalf("No layer %d", matrixLayerZ)
 	}
+	gobj.x, gobj.y = gridx, gridy
 	objectcell := &g.matrixLayers[matrixLayerZ].mat[gridy][gridx].objects
 	for _, o := range *objectcell {
 		o.x = gridx
@@ -93,4 +95,11 @@ func (g *Game) MoveMatrixObjects(layerZ, fromX, fromY, toX, toY int) {
 	}
 	g.matrixLayers[layerZ].mat[toY][toX].objects = o
 	g.matrixLayers[layerZ].mat[fromY][fromX].objects = []*GameObject{}
+}
+
+func (g *Game) AddObjectToFreeLayer(z int, o *GameObject) {
+	if z > len(g.freeLayers) {
+		log.Fatalf("Error while adding object:\n\n%v\n\nNo layer `%d`", o, z)
+	}
+	g.freeLayers[z].objects = append(g.freeLayers[z].objects, o)
 }

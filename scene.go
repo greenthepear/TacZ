@@ -3,12 +3,16 @@ package main
 
 import "math/rand"
 
+// Matrix layers Zs
 const (
-	backgroundLayerZ = 0
-	underLayerZ      = 1
-	boardlayerZ      = 2
+	backgroundLayerZ = iota
+	underLayerZ
+	boardlayerZ
+	underAttacksLayerZ
+	attacksLayerZ
 )
 
+// Free layers Zs
 const (
 	pawnInfoLayerZ = 0
 )
@@ -68,5 +72,5 @@ func (g *Game) Init() {
 
 	g.InitObstacles(10)
 
-	g.CreateNewFreeLayerOnTop("pawnInfoLayer")
+	g.InitUILayers()
 }

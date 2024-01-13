@@ -22,6 +22,9 @@ func snapXYtoGrid(squareLength px, x, y int) (int, int) {
 
 func (g *Game) DrawCursor(screen *ebiten.Image) {
 	cx, cy := ebiten.CursorPosition()
+	if cy > generalGridHeight*int(generalGridSize)-1 {
+		return
+	}
 	sx, sy := snapXYtoGridf(float64(generalGridSize), float64(cx), float64(cy))
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(sx, sy)
@@ -30,13 +33,14 @@ func (g *Game) DrawCursor(screen *ebiten.Image) {
 
 func (o *GameObject) CurrSprite() *ebiten.Image {
 	if o.sprMapMode {
+		//log.Printf("Obj: %v | Trying to draw sprite %v\n...", o.name, o.sprKey)
 		if o.sprites.images[o.sprKey] == nil {
 			log.Fatalf("No sprite under key \"%v\"", o.sprKey)
 		}
 		return o.sprites.images[o.sprKey]
 	}
 	if o.sprites.imagesQ[o.sprIdx] == nil {
-		log.Fatalf("No sprite under index \"%v\"", o.sprKey)
+		log.Fatalf("No sprite under index \"%v\"", o.sprIdx)
 	}
 	return o.sprites.imagesQ[o.sprIdx]
 }

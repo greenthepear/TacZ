@@ -27,6 +27,8 @@ type Game struct {
 	playerTurn   bool
 	enemies      []*GameObject
 	pawns        []*GameObject
+
+	attacks []Attack
 }
 
 func (g *Game) Update() error {
@@ -50,6 +52,7 @@ func main() {
 		playerTurn:   true,
 		enemies:      make([]*GameObject, 0),
 		pawns:        make([]*GameObject, 0),
+		attacks:      NewAttacks(),
 	}
 
 	g.Init()

@@ -29,6 +29,12 @@ func initFonts() {
 	}
 }
 
+func (g *Game) InitUILayers() {
+	g.CreateNewFreeLayerOnTop("pawnInfoLayer")
+	g.CreateNewMatrixLayerOnTop("underAttacksLayer", generalGridSize, 5, 1, 0, float64(boardHeight)+24)
+	g.CreateNewMatrixLayerOnTop("attacksLayer", generalGridSize, 5, 1, 0, float64(boardHeight)+24)
+}
+
 func (g *Game) DrawSelectedPawnInfo(screen *ebiten.Image) {
 	if g.selectedPawn != nil {
 		pawnCopy := *g.selectedPawn
@@ -44,7 +50,17 @@ func (g *Game) DrawSelectedPawnInfo(screen *ebiten.Image) {
 		text.Draw(screen, infoString, fontPressStart, 16, boardHeight+8, color.White)
 
 		g.AddObjectToFreeLayer(pawnInfoLayerZ, &pawnCopy)
+
+		//Populate attack selection layer
+		if g.selectedPawn.vars["canAttack"] == 1 {
+			text.Draw(screen, "Attacks:", fontPressStart, 0, boardHeight+24, color.White)
+			selectedPawnAttacks := g.CreateAttackObjectsOf(&pawnCopy)
+			for i, o := range selectedPawnAttacks {
+				g.AddObjectToMatrixLayer(o, attacksLayerZ, i, 0)
+			}
+		}
 	} else {
 		g.ClearFreeLayer(pawnInfoLayerZ)
+		g.clearMatrixLayer(attacksLayerZ)
 	}
 }
