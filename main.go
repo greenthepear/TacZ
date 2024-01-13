@@ -35,10 +35,10 @@ type Game struct {
 func (g *Game) Update() error {
 	if g.playerTurn {
 		g.HandleClickControls()
-		g.checkForTurnEndButton()
+		g.CheckForTurnEndButton()
 	} else {
-		g.deselectPawn()
-		g.clearMatrixLayer(underLayerZ)
+		g.DeselectPawn()
+		g.ClearMatrixLayer(underLayerZ)
 		g.DoEnemyTurn()
 	}
 	return nil
@@ -53,12 +53,12 @@ func main() {
 		playerTurn:     true,
 		enemies:        make([]*GameObject, 0),
 		pawns:          make([]*GameObject, 0),
-		attacks:        NewAttacks(),
+		attacks:        initAttacks(),
 		selectedAttack: nil,
 	}
 
 	g.Init()
-	initFonts()
+	InitFonts()
 
 	ebiten.SetWindowSize(boardWidth*4, (boardHeight+bottomHeight)*4)
 	ebiten.SetWindowTitle("TacZ")

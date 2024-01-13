@@ -25,23 +25,23 @@ func (g *Game) HandleBoardSelection(sx, sy int) {
 	if g.selectedPawn != nil && objWalkable != nil && !g.MatrixLayerAtZ(boardlayerZ).isOccupied(sx, sy) {
 		g.MoveMatrixObjects(boardlayerZ, g.selectedPawn.x, g.selectedPawn.y, sx, sy)
 		g.selectedPawn.vars["leftMovement"] -= objWalkable.vars["dist"]
-		g.clearMatrixLayer(underLayerZ)
-		g.createWalkables(g.findWalkable(g.selectedPawn.x, g.selectedPawn.y, boardlayerZ, int(g.selectedPawn.vars["leftMovement"])), underLayerZ)
+		g.ClearMatrixLayer(underLayerZ)
+		g.CreateWalkables(g.FindWalkable(g.selectedPawn.x, g.selectedPawn.y, boardlayerZ, int(g.selectedPawn.vars["leftMovement"])), underLayerZ)
 		return
 	}
 
 	if obj := g.matrixLayers[boardlayerZ].findObjectWithTagAt(sx, sy, "selectable"); obj != nil {
 		if g.selectedPawn != obj {
 			if g.selectedPawn != nil {
-				g.deselectPawn()
-				g.clearMatrixLayer(underLayerZ)
+				g.DeselectPawn()
+				g.ClearMatrixLayer(underLayerZ)
 			}
-			g.selectPawn(obj)
-			//fmt.Println(g.findWalkable(obj.x, obj.y, boardlayerZ, int(obj.vars["leftMovement"])))
-			g.createWalkables(g.findWalkable(obj.x, obj.y, boardlayerZ, int(obj.vars["leftMovement"])), underLayerZ)
+			g.SelectPawn(obj)
+			//fmt.Println(g.FindWalkable(obj.x, obj.y, boardlayerZ, int(obj.vars["leftMovement"])))
+			g.CreateWalkables(g.FindWalkable(obj.x, obj.y, boardlayerZ, int(obj.vars["leftMovement"])), underLayerZ)
 		} else {
-			g.deselectPawn()
-			g.clearMatrixLayer(underLayerZ)
+			g.DeselectPawn()
+			g.ClearMatrixLayer(underLayerZ)
 		}
 	}
 }
@@ -76,7 +76,7 @@ func (g *Game) HandleClickControls() {
 	}
 }
 
-func (g *Game) checkForTurnEndButton() {
+func (g *Game) CheckForTurnEndButton() {
 	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 		g.playerTurn = false
 	}

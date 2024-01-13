@@ -135,7 +135,7 @@ func (l MatrixLayer) printMatrix() {
 	fmt.Print("\n")
 }
 
-func (g *Game) clearMatrixLayer(layerZ int) {
+func (g *Game) ClearMatrixLayer(layerZ int) {
 	for y := range g.matrixLayers[layerZ].mat {
 		for x := range g.matrixLayers[layerZ].mat[y] {
 			g.matrixLayers[layerZ].mat[y][x] = NewObjectCell(x, y)

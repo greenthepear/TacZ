@@ -30,17 +30,16 @@ func (g *Game) DrawCursor(screen *ebiten.Image) {
 	op.GeoM.Translate(sx, sy)
 	screen.DrawImage(g.imagePacks["UI"].images["cursor0"], op)
 }
-
-func (o *GameObject) CurrSprite() *ebiten.Image {
+func (o *GameObject) Sprite() *ebiten.Image {
 	if o.sprMapMode {
-		//log.Printf("Obj: %v | Trying to draw sprite %v\n...", o.name, o.sprKey)
-		if o.sprites.images[o.sprKey] == nil {
-			log.Fatalf("No sprite under key \"%v\"", o.sprKey)
+		img, ok := o.sprites.images[o.sprKey]
+		if !ok {
+			log.Fatalf("Obj: %v | No sprite under key \"%v\"", o.name, o.sprKey)
 		}
-		return o.sprites.images[o.sprKey]
+		return img
 	}
-	if o.sprites.imagesQ[o.sprIdx] == nil {
-		log.Fatalf("No sprite under index \"%v\"", o.sprIdx)
+	if o.sprIdx >= len(o.sprites.imagesQ) {
+		log.Fatalf("Obj: %v | No sprite under index \"%v\"", o.name, o.sprIdx)
 	}
 	return o.sprites.imagesQ[o.sprIdx]
 }
@@ -50,7 +49,7 @@ func (g *Game) DrawMatrixObjectAt(layerZ, x, y int, screen *ebiten.Image) {
 	l := g.matrixLayers[layerZ]
 	gx, gy := float64(x*int(l.squareLength)), float64(y*int(l.squareLength))
 	op.GeoM.Translate(gx+l.xOffset, gy+l.yOffset)
-	img := l.FirstObjectAt(x, y).CurrSprite()
+	img := l.FirstObjectAt(x, y).Sprite()
 	screen.DrawImage(img, op)
 }
 
@@ -75,7 +74,7 @@ func (g *Game) DrawFreeLayer(l *FreeObjectLayer, screen *ebiten.Image) {
 	for _, o := range l.objects {
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(float64(o.x), float64(o.y))
-		img := o.CurrSprite()
+		img := o.Sprite()
 		screen.DrawImage(img, op)
 	}
 }

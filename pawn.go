@@ -24,13 +24,13 @@ func (g *Game) AddPawnToLayer(z, x, y int) {
 	g.pawns = append(g.pawns, obj)
 }
 
-func (g *Game) selectPawn(pawnObj *GameObject) {
+func (g *Game) SelectPawn(pawnObj *GameObject) {
 	pawnObj.vars["isSelected"] = 1
 	pawnObj.sprIdx = 1
 	g.selectedPawn = pawnObj
 }
 
-func (g *Game) deselectPawn() {
+func (g *Game) DeselectPawn() {
 	if g.selectedPawn == nil {
 		return
 	}
@@ -40,7 +40,7 @@ func (g *Game) deselectPawn() {
 	g.DeselectAttack()
 }
 
-func (g *Game) createWalkables(vecs []vec, layerZ int) {
+func (g *Game) CreateWalkables(vecs []vec, layerZ int) {
 	for _, v := range vecs {
 		obj := g.SimpleCreateObjectInMatrixLayer(underLayerZ, "walkable", v.x, v.y, "UI", false)
 		obj.vars["dist"] = float64(v.dist)
@@ -48,7 +48,7 @@ func (g *Game) createWalkables(vecs []vec, layerZ int) {
 	}
 }
 
-func (g *Game) initPlayerTurn() {
+func (g *Game) InitPlayerTurn() {
 	fmt.Printf("Doing player turn...\n")
 	for _, pawn := range g.pawns {
 		pawn.vars["leftMovement"] = pawn.vars["maxMovement"]

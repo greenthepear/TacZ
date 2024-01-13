@@ -14,7 +14,7 @@ import (
 
 var fontPressStart font.Face
 
-func initFonts() {
+func InitFonts() {
 	tt, err := opentype.Parse(fonts.PressStart2P_ttf)
 	if err != nil {
 		log.Fatal(err)
@@ -61,6 +61,6 @@ func (g *Game) DrawSelectedPawnInfo(screen *ebiten.Image) {
 		}
 	} else {
 		g.ClearFreeLayer(pawnInfoLayerZ)
-		g.clearMatrixLayer(attacksLayerZ)
+		g.ClearMatrixLayer(attacksLayerZ)
 	}
 }

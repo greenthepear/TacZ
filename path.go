@@ -32,7 +32,7 @@ func getNeighboringCellsOfObject(gobj GameObject) []vec {
 // Find points (generate slice of vectors)
 // that are walkable within distance (steps) in a layer from (x,y).
 // Checks only for empty object cells.
-func (g *Game) findWalkable(fromX, fromY, layerZ, distance int) []vec {
+func (g *Game) FindWalkable(fromX, fromY, layerZ, distance int) []vec {
 	vecs := make([]vec, 0)
 
 	q := Queue{}

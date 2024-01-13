@@ -6,7 +6,7 @@ type Attack struct {
 	imagePackKey string
 }
 
-func NewAttacks() []Attack {
+func initAttacks() []Attack {
 	return []Attack{
 		{"shove", "hasShove", "shove"},
 		{"throwRock", "hasThrowRock", "throwRock"},
@@ -36,5 +36,5 @@ func (g *Game) SelectAttack(o *GameObject) {
 
 func (g *Game) DeselectAttack() {
 	g.selectedAttack = nil
-	g.clearMatrixLayer(underAttacksLayerZ)
+	g.ClearMatrixLayer(underAttacksLayerZ)
 }

@@ -40,5 +40,5 @@ func (g *Game) DoEnemyTurn() {
 		g.MoveMatrixObjects(boardlayerZ, enemy.x, enemy.y, chosenDirVec.x, chosenDirVec.y)
 	}
 
-	g.initPlayerTurn()
+	g.InitPlayerTurn()
 }
