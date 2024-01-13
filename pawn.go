@@ -37,6 +37,7 @@ func (g *Game) deselectPawn() {
 	g.selectedPawn.vars["isSelected"] = 0
 	g.selectedPawn.sprIdx = 0
 	g.selectedPawn = nil
+	g.DeselectAttack()
 }
 
 func (g *Game) createWalkables(vecs []vec, layerZ int) {

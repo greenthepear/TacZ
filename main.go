@@ -28,7 +28,8 @@ type Game struct {
 	enemies      []*GameObject
 	pawns        []*GameObject
 
-	attacks []Attack
+	attacks        []Attack
+	selectedAttack *GameObject
 }
 
 func (g *Game) Update() error {
@@ -45,14 +46,15 @@ func (g *Game) Update() error {
 
 func main() {
 	g := &Game{
-		imagePacks:   initImagePacks(),
-		freeLayers:   make([]*FreeObjectLayer, 0),
-		matrixLayers: make([]*MatrixLayer, 0),
-		selectedPawn: nil,
-		playerTurn:   true,
-		enemies:      make([]*GameObject, 0),
-		pawns:        make([]*GameObject, 0),
-		attacks:      NewAttacks(),
+		imagePacks:     initImagePacks(),
+		freeLayers:     make([]*FreeObjectLayer, 0),
+		matrixLayers:   make([]*MatrixLayer, 0),
+		selectedPawn:   nil,
+		playerTurn:     true,
+		enemies:        make([]*GameObject, 0),
+		pawns:          make([]*GameObject, 0),
+		attacks:        NewAttacks(),
+		selectedAttack: nil,
 	}
 
 	g.Init()

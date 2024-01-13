@@ -26,6 +26,15 @@ func (g *Game) CreateAttackObjectsOf(o *GameObject) []*GameObject {
 			r = append(r, g.CreateAttackObjectFromReference(a))
 		}
 	}
-
 	return r
+}
+
+func (g *Game) SelectAttack(o *GameObject) {
+	g.selectedAttack = o
+	g.SimpleCreateObjectInMatrixLayer(underAttacksLayerZ, "selectedAttackIndicator", o.x, o.y, "UI", false)
+}
+
+func (g *Game) DeselectAttack() {
+	g.selectedAttack = nil
+	g.clearMatrixLayer(underAttacksLayerZ)
 }
