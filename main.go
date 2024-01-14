@@ -28,7 +28,7 @@ type Game struct {
 	enemies      []*GameObject
 	pawns        []*GameObject
 
-	attacks        []Attack
+	attacks        map[string]Attack
 	selectedAttack *GameObject
 }
 
@@ -53,11 +53,11 @@ func main() {
 		playerTurn:     true,
 		enemies:        make([]*GameObject, 0),
 		pawns:          make([]*GameObject, 0),
-		attacks:        initAttacks(),
+		attacks:        nil,
 		selectedAttack: nil,
 	}
-
-	g.Init()
+	g.InitLayers()
+	g.InitAttacks()
 	InitFonts()
 
 	ebiten.SetWindowSize(boardWidth*4, (boardHeight+bottomHeight)*4)

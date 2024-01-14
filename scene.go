@@ -57,7 +57,7 @@ func (g *Game) InitObstacles(randomObstacleNum int) {
 	}
 }
 
-func (g *Game) Init() {
+func (g *Game) InitLayers() {
 	g.InitBackgroundLayer()
 	g.CreateNewMatrixLayerOnTop("Under", generalGridSize, generalGridWidth, generalGridHeight, 0, 0)
 	g.CreateNewMatrixLayerOnTop("Board", generalGridSize, generalGridWidth, generalGridHeight, 0, 0)

@@ -37,7 +37,7 @@ func (g *Game) DeselectPawn() {
 	g.selectedPawn.vars["isSelected"] = 0
 	g.selectedPawn.sprIdx = 0
 	g.selectedPawn = nil
-	g.DeselectAttack()
+	g.DeselectAttack(false)
 }
 
 func (g *Game) CreateWalkables(vecs []vec, layerZ int) {
@@ -46,6 +46,11 @@ func (g *Game) CreateWalkables(vecs []vec, layerZ int) {
 		obj.vars["dist"] = float64(v.dist)
 		obj.sprIdx = 1
 	}
+}
+
+func (g *Game) CreateWalkablesOfSelectedPawn() {
+	g.CreateWalkables(
+		g.FindWalkable(g.selectedPawn.x, g.selectedPawn.y, boardlayerZ, int(g.selectedPawn.vars["leftMovement"])), underLayerZ)
 }
 
 func (g *Game) InitPlayerTurn() {

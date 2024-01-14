@@ -47,7 +47,7 @@ func initImagePacks() map[string]*ImagePack { //TODO: just autoload
 
 	//UI
 	packs["UI"] = initOneImagePack(
-		"UI/cursor0", "UI/walkable")
+		"UI/cursor0", "UI/walkable", "UI/attackable")
 
 	//Zombies
 	packs["Zombie"] = initOneImagePack(

@@ -8,6 +8,14 @@ type vec struct {
 	dist int //for pathfinding
 }
 
+func NewVec(x, y int) vec {
+	return vec{x, y, 0}
+}
+
+func NewVecDist(x, y, d int) vec {
+	return vec{x, y, d}
+}
+
 func getNeighboringCells(v vec) []vec {
 	possibleMoves := make([]vec, 0, 4)
 	if v.y != 0 {

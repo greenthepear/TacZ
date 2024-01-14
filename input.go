@@ -26,7 +26,7 @@ func (g *Game) HandleBoardSelection(sx, sy int) {
 		g.MoveMatrixObjects(boardlayerZ, g.selectedPawn.x, g.selectedPawn.y, sx, sy)
 		g.selectedPawn.vars["leftMovement"] -= objWalkable.vars["dist"]
 		g.ClearMatrixLayer(underLayerZ)
-		g.CreateWalkables(g.FindWalkable(g.selectedPawn.x, g.selectedPawn.y, boardlayerZ, int(g.selectedPawn.vars["leftMovement"])), underLayerZ)
+		g.CreateWalkablesOfSelectedPawn()
 		return
 	}
 
@@ -38,7 +38,7 @@ func (g *Game) HandleBoardSelection(sx, sy int) {
 			}
 			g.SelectPawn(obj)
 			//fmt.Println(g.FindWalkable(obj.x, obj.y, boardlayerZ, int(obj.vars["leftMovement"])))
-			g.CreateWalkables(g.FindWalkable(obj.x, obj.y, boardlayerZ, int(obj.vars["leftMovement"])), underLayerZ)
+			g.CreateWalkablesOfSelectedPawn()
 		} else {
 			g.DeselectPawn()
 			g.ClearMatrixLayer(underLayerZ)
@@ -51,11 +51,11 @@ func (g *Game) HandleAttackSelection(sx, sy int) {
 	o := g.matrixLayers[attacksLayerZ].FirstObjectAt(sx, sy)
 	if g.selectedAttack != o {
 		if g.selectedAttack != nil {
-			g.DeselectAttack()
+			g.DeselectAttack(true)
 		}
-		g.SelectAttack(o)
+		g.SelectAttack(o, g.selectedPawn)
 	} else {
-		g.DeselectAttack()
+		g.DeselectAttack(true)
 	}
 }
 

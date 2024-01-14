@@ -88,6 +88,10 @@ func (l *MatrixLayer) isOccupied(x, y int) bool {
 	return l.FirstObjectAt(x, y) != nil
 }
 
+func (l *MatrixLayer) isWithinBounds(x, y int) bool {
+	return x >= 0 && x < l.width && y >= 0 && y < l.height
+}
+
 func (l *MatrixLayer) findObjectWithNameAt(x, y int, name string) *GameObject {
 	if !l.isOccupied(x, y) {
 		return nil

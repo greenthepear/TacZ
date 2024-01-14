@@ -35,6 +35,14 @@ func (g *Game) InitUILayers() {
 	g.CreateNewMatrixLayerOnTop("attacksLayer", generalGridSize, 5, 1, 0, float64(boardHeight)+24)
 }
 
+func (g *Game) GenAttackString() string {
+	if g.selectedAttack == nil {
+		return "Attacks:"
+	}
+	return fmt.Sprintf("%v: %v",
+		g.selectedAttack.name, g.attacks[g.selectedAttack.name].desc)
+}
+
 func (g *Game) DrawSelectedPawnInfo(screen *ebiten.Image) {
 	if g.selectedPawn != nil {
 		pawnCopy := *g.selectedPawn
@@ -53,7 +61,7 @@ func (g *Game) DrawSelectedPawnInfo(screen *ebiten.Image) {
 
 		//Populate attack selection layer
 		if g.selectedPawn.vars["canAttack"] == 1 {
-			text.Draw(screen, "Attacks:", fontPressStart, 0, boardHeight+24, color.White)
+			text.Draw(screen, g.GenAttackString(), fontPressStart, 0, boardHeight+24, color.White)
 			selectedPawnAttacks := g.CreateAttackObjectsOf(&pawnCopy)
 			for i, o := range selectedPawnAttacks {
 				g.AddObjectToMatrixLayer(o, attacksLayerZ, i, 0)
