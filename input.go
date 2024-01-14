@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
@@ -21,6 +24,26 @@ func (g *Game) CursorXYtoMatrixGrid(layerZ, sx, sy int) (int, int) {
 
 func (g *Game) HandleBoardSelection(sx, sy int) {
 	sx, sy = g.CursorXYtoMatrixGrid(boardlayerZ, sx, sy)
+
+	objAttackable := g.MatrixLayerAtZ(underLayerZ).findObjectWithNameAt(sx, sy, "attackable")
+	if g.selectedAttack != nil && objAttackable != nil {
+		boardLayer := g.MatrixLayerAtZ(boardlayerZ)
+		//fmt.Printf("\n%#v\n", objAttackable)
+		objBoard := boardLayer.findObjectWithTagAt(objAttackable.x, objAttackable.y, "damageable")
+		if objBoard != nil {
+			objBoard.vars["leftHP"] -= objAttackable.vars["damage"]
+			fmt.Printf("%s damaged for %.0f.\n", objBoard.name, objAttackable.vars["damage"])
+			if objBoard.vars["leftHP"] <= 0 {
+				fmt.Printf("%s destroyed!\n", objBoard.name)
+				boardLayer.deleteAllAt(objBoard.x, objBoard.y)
+			}
+			g.selectedPawn.vars["canAttack"] = 0.5
+			g.DeselectAttack(true)
+			g.ClearAttackLayer()
+		}
+		return
+	}
+
 	objWalkable := g.MatrixLayerAtZ(underLayerZ).findObjectWithNameAt(sx, sy, "walkable")
 	if g.selectedPawn != nil && objWalkable != nil && !g.MatrixLayerAtZ(boardlayerZ).isOccupied(sx, sy) {
 		g.MoveMatrixObjects(boardlayerZ, g.selectedPawn.x, g.selectedPawn.y, sx, sy)
@@ -31,6 +54,7 @@ func (g *Game) HandleBoardSelection(sx, sy int) {
 	}
 
 	if obj := g.matrixLayers[boardlayerZ].findObjectWithTagAt(sx, sy, "selectable"); obj != nil {
+		g.ClearAttackLayer()
 		if g.selectedPawn != obj {
 			if g.selectedPawn != nil {
 				g.DeselectPawn()
@@ -79,5 +103,20 @@ func (g *Game) HandleClickControls() {
 func (g *Game) CheckForTurnEndButton() {
 	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 		g.playerTurn = false
+
+		//Update enemy slice and check for win
+		allObjects := g.AllLayerObjects(boardlayerZ)
+
+		g.enemies = make([]*GameObject, 0)
+		for _, o := range allObjects {
+			if o.HasTag("enemy") {
+				g.enemies = append(g.enemies, o)
+			}
+		}
+
+		if len(g.enemies) == 0 {
+			fmt.Printf("All enemies defeated. You win!\n")
+			os.Exit(0)
+		}
 	}
 }

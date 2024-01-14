@@ -11,7 +11,7 @@ func NewEnemy(game *Game, x, y int) *GameObject {
 		"maxHP":  3,
 	}
 	return NewGameObject("Zombie", x, y, game.imagePacks["Zombie"], false, 0, "", true, game,
-		enemyVars, nil, nil, []string{"enemy"})
+		enemyVars, nil, nil, []string{"enemy", "damageable"})
 }
 
 func (g *Game) AddEnemyToLayer(z, x, y int) {

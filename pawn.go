@@ -15,7 +15,7 @@ func NewPawn(game *Game, x, y int) *GameObject {
 	}
 	return NewGameObject("Pawn", x, y, game.imagePacks["Pawn"], false, 0, "", true, game,
 		pawnVariables,
-		nil, nil, []string{"selectable"})
+		nil, nil, []string{"selectable", "damageable"})
 }
 
 func (g *Game) AddPawnToLayer(z, x, y int) {
@@ -57,6 +57,7 @@ func (g *Game) InitPlayerTurn() {
 	fmt.Printf("Doing player turn...\n")
 	for _, pawn := range g.pawns {
 		pawn.vars["leftMovement"] = pawn.vars["maxMovement"]
+		pawn.vars["canAttack"] = 1.0
 	}
 	g.playerTurn = true
 }

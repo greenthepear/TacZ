@@ -48,6 +48,15 @@ func NewGameObject(
 	return gobj
 }
 
+func (o *GameObject) HasTag(tag string) bool {
+	for _, t := range o.tags {
+		if t == tag {
+			return true
+		}
+	}
+	return false
+}
+
 func (g *Game) SimpleCreateObjectInMatrixLayer(matrixLayerZ int, objName string, gridx, gridy int, imagePackName string, sprMapMode bool) *GameObject {
 	if len(g.matrixLayers) < matrixLayerZ {
 		log.Fatalf("No layer %d", matrixLayerZ)
@@ -76,10 +85,6 @@ func (g *Game) AddObjectToMatrixLayer(gobj *GameObject, matrixLayerZ, gridx, gri
 	}
 	gobj.x, gobj.y = gridx, gridy
 	objectcell := &g.matrixLayers[matrixLayerZ].mat[gridy][gridx].objects
-	for _, o := range *objectcell {
-		o.x = gridx
-		o.y = gridy
-	}
 	*objectcell = append(*objectcell, gobj)
 }
 

@@ -60,12 +60,17 @@ func (g *Game) DrawSelectedPawnInfo(screen *ebiten.Image) {
 		g.AddObjectToFreeLayer(pawnInfoLayerZ, &pawnCopy)
 
 		//Populate attack selection layer
-		if g.selectedPawn.vars["canAttack"] == 1 {
+		switch g.selectedPawn.vars["canAttack"] {
+		case 1.0:
 			text.Draw(screen, g.GenAttackString(), fontPressStart, 0, boardHeight+24, color.White)
 			selectedPawnAttacks := g.CreateAttackObjectsOf(&pawnCopy)
 			for i, o := range selectedPawnAttacks {
 				g.AddObjectToMatrixLayer(o, attacksLayerZ, i, 0)
 			}
+		case 0.5:
+			text.Draw(screen, "Attack used till next turn", fontPressStart, 0, boardHeight+24, color.White)
+		case 0.0:
+			text.Draw(screen, "Cannot attack!", fontPressStart, 0, boardHeight+24, color.White)
 		}
 	} else {
 		g.ClearFreeLayer(pawnInfoLayerZ)

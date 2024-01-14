@@ -118,6 +118,10 @@ func (l *MatrixLayer) findObjectWithTagAt(x, y int, tag string) *GameObject {
 	return nil
 }
 
+func (l *MatrixLayer) deleteAllAt(x, y int) {
+	l.mat[y][x] = NewObjectCell(x, y)
+}
+
 //lint:ignore U1000 shut up lint
 func (l *MatrixLayer) hasObjectWithTagAt(x, y int, tag string) bool {
 	return l.findObjectWithTagAt(x, y, tag) == nil
@@ -168,4 +172,19 @@ func (g *Game) CreateNewFreeLayerOnTop(name string) {
 
 func (g *Game) ClearFreeLayer(layerZ int) {
 	g.freeLayers[layerZ].objects = make([]*GameObject, 0)
+}
+
+func (g *Game) AllLayerObjects(layerZ int) []*GameObject {
+	r := make([]*GameObject, 0)
+	l := g.MatrixLayerAtZ(layerZ)
+	for y := range g.matrixLayers[layerZ].mat {
+		for x := range g.matrixLayers[layerZ].mat[y] {
+			o := l.FirstObjectAt(x, y)
+			if o == nil {
+				continue
+			}
+			r = append(r, o)
+		}
+	}
+	return r
 }

@@ -9,29 +9,45 @@ type Attack struct {
 	script func(*Game, *GameObject)
 }
 
-func shoveScript(g *Game, o *GameObject) {
-	attackableObj := *NewGameObject("attackable", o.x, o.y, g.imagePacks["UI"], true, 0, "attackable", true, g,
-		map[string]float64{
-			"damage":   1,
-			"shoveDir": 0, //0 - no shove, 1 - north, 2 - east, 3 - south, 4 - west
-		}, nil, nil, []string{},
+func NewAttackable(game *Game, o *GameObject, x, y int, vars map[string]float64) *GameObject {
+	return NewGameObject("attackable", o.x, o.y, game.imagePacks["UI"], true, 0, "attackable", true, game,
+		vars, nil, nil, []string{},
 	)
+}
+
+func shoveScript(g *Game, o *GameObject) {
 	l := g.MatrixLayerAtZ(boardlayerZ)
 	if l.isWithinBounds(o.x, o.y-1) {
-		attackableObj.vars["shoveDir"] = 1
-		g.AddObjectToMatrixLayer(&attackableObj, underLayerZ, o.x, o.y-1)
+		g.AddObjectToMatrixLayer(
+			NewAttackable(g, o, o.x, o.y-1, map[string]float64{
+				"damage":   1,
+				"shoveDir": 1,
+			}),
+			underLayerZ, o.x, o.y-1)
 	}
 	if l.isWithinBounds(o.x+1, o.y) {
-		attackableObj.vars["shoveDir"] = 2
-		g.AddObjectToMatrixLayer(&attackableObj, underLayerZ, o.x+1, o.y)
+		g.AddObjectToMatrixLayer(
+			NewAttackable(g, o, o.x+1, o.y, map[string]float64{
+				"damage":   1,
+				"shoveDir": 2,
+			}),
+			underLayerZ, o.x+1, o.y)
 	}
 	if l.isWithinBounds(o.x, o.y+1) {
-		attackableObj.vars["shoveDir"] = 3
-		g.AddObjectToMatrixLayer(&attackableObj, underLayerZ, o.x, o.y+1)
+		g.AddObjectToMatrixLayer(
+			NewAttackable(g, o, o.x, o.y+1, map[string]float64{
+				"damage":   1,
+				"shoveDir": 3,
+			}),
+			underLayerZ, o.x, o.y+1)
 	}
 	if l.isWithinBounds(o.x-1, o.y) {
-		attackableObj.vars["shoveDir"] = 4
-		g.AddObjectToMatrixLayer(&attackableObj, underLayerZ, o.x-1, o.y)
+		g.AddObjectToMatrixLayer(
+			NewAttackable(g, o, o.x-1, o.y, map[string]float64{
+				"damage":   1,
+				"shoveDir": 4,
+			}),
+			underLayerZ, o.x-1, o.y)
 	}
 }
 
@@ -44,16 +60,14 @@ func throwScript(g *Game, o *GameObject) {
 		NewVec(x, y-2), NewVec(x, y-3),
 	}
 
-	attackableObj := *NewGameObject("attackable", o.x, o.y, g.imagePacks["UI"], true, 0, "attackable", true, g,
-		map[string]float64{
-			"damage": 1,
-		}, nil, nil, []string{},
-	)
-
 	l := g.MatrixLayerAtZ(underLayerZ)
 	for _, v := range vecsToThrow {
 		if l.isWithinBounds(v.x, v.y) {
-			g.AddObjectToMatrixLayer(&attackableObj, underLayerZ, v.x, v.y)
+			g.AddObjectToMatrixLayer(NewGameObject("attackable", o.x, o.y, g.imagePacks["UI"], true, 0, "attackable", true, g,
+				map[string]float64{
+					"damage": 1,
+				}, nil, nil, []string{},
+			), underLayerZ, v.x, v.y)
 		}
 	}
 }
@@ -101,4 +115,8 @@ func (g *Game) DeselectAttack(recreateWalkables bool) {
 	if recreateWalkables {
 		g.CreateWalkablesOfSelectedPawn()
 	}
+}
+
+func (g *Game) ClearAttackLayer() {
+	g.ClearMatrixLayer(attacksLayerZ)
 }
