@@ -57,6 +57,14 @@ func (o *GameObject) HasTag(tag string) bool {
 	return false
 }
 
+func (o *GameObject) XY() (int, int) {
+	return o.x, o.y
+}
+
+func (o *GameObject) Vec() vec {
+	return NewVec(o.x, o.y)
+}
+
 func (g *Game) SimpleCreateObjectInMatrixLayer(matrixLayerZ int, objName string, gridx, gridy int, imagePackName string, sprMapMode bool) *GameObject {
 	if len(g.matrixLayers) < matrixLayerZ {
 		log.Fatalf("No layer %d", matrixLayerZ)
@@ -90,16 +98,16 @@ func (g *Game) AddObjectToMatrixLayer(gobj *GameObject, matrixLayerZ, gridx, gri
 
 func (g *Game) MoveMatrixObjects(layerZ, fromX, fromY, toX, toY int) {
 	l := g.matrixLayers[layerZ]
-	o := l.ObjectCellAt(fromX, fromY).objects
-	if len(o) == 0 {
-		log.Fatal("Cell empty.")
+	cell := l.ObjectCellAt(fromX, fromY)
+	if len(cell.objects) == 0 {
+		log.Fatalf("Cell at (%d, %d) empty:\n%#v", fromX, fromY, cell)
 	}
-	for _, obj := range o {
+	for _, obj := range cell.objects {
 		obj.x = toX
 		obj.y = toY
 	}
-	g.matrixLayers[layerZ].mat[toY][toX].objects = o
-	g.matrixLayers[layerZ].mat[fromY][fromX].objects = []*GameObject{}
+	g.matrixLayers[layerZ].mat[toY][toX].objects = cell.objects
+	g.matrixLayers[layerZ].mat[fromY][fromX] = NewObjectCell(fromX, fromY)
 }
 
 func (g *Game) AddObjectToFreeLayer(z int, o *GameObject) {

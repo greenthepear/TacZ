@@ -31,15 +31,7 @@ func (g *Game) HandleBoardSelection(sx, sy int) {
 		//fmt.Printf("\n%#v\n", objAttackable)
 		objBoard := boardLayer.findObjectWithTagAt(objAttackable.x, objAttackable.y, "damageable")
 		if objBoard != nil {
-			objBoard.vars["leftHP"] -= objAttackable.vars["damage"]
-			fmt.Printf("%s damaged for %.0f.\n", objBoard.name, objAttackable.vars["damage"])
-			if objBoard.vars["leftHP"] <= 0 {
-				fmt.Printf("%s destroyed!\n", objBoard.name)
-				boardLayer.deleteAllAt(objBoard.x, objBoard.y)
-			}
-			g.selectedPawn.vars["canAttack"] = 0.5
-			g.DeselectAttack(true)
-			g.ClearAttackLayer()
+			g.ApplyPawnAttack(objAttackable, objBoard, boardLayer)
 		}
 		return
 	}

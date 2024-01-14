@@ -70,6 +70,10 @@ func (g *Game) InitLayers() {
 	g.AddEnemyToLayer(boardlayerZ, 9, 5)
 	g.AddEnemyToLayer(boardlayerZ, 10, 6)
 
+	g.AddObjectToMatrixLayer(NewGameObject(
+		"test", 0, 0, g.imagePacks["UI"], true, 0, "attackable", true, g, map[string]float64{}, nil, nil, []string{},
+	), boardlayerZ, 3, 3)
+
 	g.InitObstacles(10)
 
 	g.InitUILayers()

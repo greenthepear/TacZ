@@ -1,5 +1,9 @@
 package main
 
+import "fmt"
+
+const shoveBumpDamage = 1
+
 type Attack struct {
 	name         string
 	objectVarKey string
@@ -9,7 +13,7 @@ type Attack struct {
 	script func(*Game, *GameObject)
 }
 
-func NewAttackable(game *Game, o *GameObject, x, y int, vars map[string]float64) *GameObject {
+func NewAttackable(game *Game, o *GameObject, vars map[string]float64) *GameObject {
 	return NewGameObject("attackable", o.x, o.y, game.imagePacks["UI"], true, 0, "attackable", true, game,
 		vars, nil, nil, []string{},
 	)
@@ -17,42 +21,25 @@ func NewAttackable(game *Game, o *GameObject, x, y int, vars map[string]float64)
 
 func shoveScript(g *Game, o *GameObject) {
 	l := g.MatrixLayerAtZ(boardlayerZ)
-	if l.isWithinBounds(o.x, o.y-1) {
-		g.AddObjectToMatrixLayer(
-			NewAttackable(g, o, o.x, o.y-1, map[string]float64{
-				"damage":   1,
-				"shoveDir": 1,
-			}),
-			underLayerZ, o.x, o.y-1)
+	x, y := o.XY()
+	vecsToShove := [...]vec{
+		NewVec(x, y-1), NewVec(x+1, y),
+		NewVec(x, y+1), NewVec(x-1, y),
 	}
-	if l.isWithinBounds(o.x+1, o.y) {
-		g.AddObjectToMatrixLayer(
-			NewAttackable(g, o, o.x+1, o.y, map[string]float64{
-				"damage":   1,
-				"shoveDir": 2,
-			}),
-			underLayerZ, o.x+1, o.y)
-	}
-	if l.isWithinBounds(o.x, o.y+1) {
-		g.AddObjectToMatrixLayer(
-			NewAttackable(g, o, o.x, o.y+1, map[string]float64{
-				"damage":   1,
-				"shoveDir": 3,
-			}),
-			underLayerZ, o.x, o.y+1)
-	}
-	if l.isWithinBounds(o.x-1, o.y) {
-		g.AddObjectToMatrixLayer(
-			NewAttackable(g, o, o.x-1, o.y, map[string]float64{
-				"damage":   1,
-				"shoveDir": 4,
-			}),
-			underLayerZ, o.x-1, o.y)
+	for i, v := range vecsToShove {
+		if l.isWithinBounds(v.x, v.y) {
+			g.AddObjectToMatrixLayer(
+				NewAttackable(g, o, map[string]float64{
+					"damage":   1,
+					"shoveDir": 1 + float64(i), //0 - none, 1 - north, 2 - east, 3 - south, 4 - west
+				}),
+				underLayerZ, v.x, v.y)
+		}
 	}
 }
 
 func throwScript(g *Game, o *GameObject) {
-	x, y := o.x, o.y
+	x, y := o.XY()
 	vecsToThrow := [...]vec{
 		NewVec(x+2, y), NewVec(x+3, y),
 		NewVec(x-2, y), NewVec(x-3, y),
@@ -119,4 +106,57 @@ func (g *Game) DeselectAttack(recreateWalkables bool) {
 
 func (g *Game) ClearAttackLayer() {
 	g.ClearMatrixLayer(attacksLayerZ)
+}
+
+// Applies and returns if object has been destroyed
+func (g *Game) ApplyDamage(dmg float64, receiver *GameObject, receiverLayer *MatrixLayer) bool {
+	receiver.vars["leftHP"] -= dmg
+	fmt.Printf("%s damaged for %.0f.\n", receiver.name, dmg)
+	if receiver.vars["leftHP"] <= 0 {
+		fmt.Printf("%s destroyed!\n", receiver.name)
+		receiverLayer.deleteAllAt(receiver.x, receiver.y)
+		return true
+	}
+	return false
+}
+
+func (g *Game) ApplyShove(dir float64, receiver *GameObject) bool {
+	x, y := receiver.XY()
+	shoveVecs := map[float64]vec{
+		1.0: NewVec(x, y-1),
+		2.0: NewVec(x+1, y),
+		3.0: NewVec(x, y+1),
+		4.0: NewVec(x-1, y),
+	}
+	shoveVec := shoveVecs[dir]
+	l := g.MatrixLayerAtZ(boardlayerZ)
+	if !l.isWithinBounds(shoveVec.x, shoveVec.y) {
+		return false
+	}
+
+	oAtShoveDir := l.FirstObjectAt(shoveVec.x, shoveVec.y)
+	if oAtShoveDir == nil {
+		g.MoveMatrixObjects(boardlayerZ, x, y, shoveVec.x, shoveVec.y)
+		return false
+	}
+
+	if oAtShoveDir.HasTag("damageable") {
+		g.ApplyDamage(shoveBumpDamage, oAtShoveDir, l)
+	}
+	return g.ApplyDamage(shoveBumpDamage, receiver, l)
+}
+
+func (g *Game) ApplyPawnAttack(oAttackable *GameObject, receiver *GameObject, receiverLayer *MatrixLayer) {
+
+	died := false
+	if dir := oAttackable.vars["shoveDir"]; dir != 0.0 {
+		died = g.ApplyShove(dir, receiver)
+	}
+	if dmg := oAttackable.vars["damage"]; dmg != 0.0 && !died {
+		g.ApplyDamage(dmg, receiver, receiverLayer)
+	}
+
+	g.selectedPawn.vars["canAttack"] = 0.5
+	g.DeselectAttack(true)
+	g.ClearAttackLayer()
 }
