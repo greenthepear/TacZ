@@ -120,6 +120,13 @@ func (l *MatrixLayer) findObjectWithTagAt(x, y int, tag string) *GameObject {
 	return nil
 }
 
+func (l *MatrixLayer) deleteFirstAt(x, y int) {
+	l.mat[y][x].objects = l.mat[y][x].objects[1:]
+	if len(l.mat[y][x].objects) == 0 {
+		l.numOfObjects--
+	}
+}
+
 func (l *MatrixLayer) deleteAllAt(x, y int) {
 	l.mat[y][x] = NewObjectCell(x, y)
 	l.numOfObjects--
@@ -183,10 +190,20 @@ func (g *Game) AllLayerObjects(layerZ int) []*GameObject {
 	l := g.MatrixLayerAtZ(layerZ)
 	for y := range g.matrixLayers[layerZ].mat {
 		for x := range g.matrixLayers[layerZ].mat[y] {
-			o := l.FirstObjectAt(x, y)
+			o := l.AllObjectsAt(x, y)
 			if o == nil {
 				continue
 			}
+			r = append(r, o...)
+		}
+	}
+	return r
+}
+
+func (g *Game) AllLayerObjectsWithTag(layerZ int, tag string) []*GameObject {
+	r := make([]*GameObject, 0)
+	for _, o := range g.AllLayerObjects(layerZ) {
+		if o.HasTag(tag) {
 			r = append(r, o)
 		}
 	}

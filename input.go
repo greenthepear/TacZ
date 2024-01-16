@@ -97,14 +97,7 @@ func (g *Game) CheckForTurnEndButton() {
 		g.playerTurn = false
 
 		//Update enemy slice and check for win
-		allObjects := g.AllLayerObjects(boardlayerZ)
-
-		g.enemies = make([]*GameObject, 0)
-		for _, o := range allObjects {
-			if o.HasTag("enemy") {
-				g.enemies = append(g.enemies, o)
-			}
-		}
+		g.enemies = g.AllLayerObjectsWithTag(boardlayerZ, "enemy")
 
 		if len(g.enemies) == 0 {
 			fmt.Printf("All enemies defeated. You win!\n")

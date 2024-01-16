@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"os"
 )
 
 func skinnyScript(g *Game, o *GameObject) {
@@ -14,9 +15,10 @@ func skinnyScript(g *Game, o *GameObject) {
 		fmt.Printf("Found player at (%d, %d), from (%d,%d)\n",
 			p.v.x, p.v.y, p.v.prev.x, p.v.prev.y)
 		toX, toY := p.v.prev.x, p.v.prev.y
-		if toX != o.x && toY != o.y {
+		if !(toX == o.x && toY == o.y) {
 			g.MoveMatrixObjects(boardlayerZ, o.x, o.y, toX, toY)
 		}
+		g.attacks["punch"].script(g, o, p.v.x, p.v.y)
 	}
 }
 
@@ -28,11 +30,12 @@ func (g *Game) InitEnemyScripts() {
 
 func NewSkinny(game *Game, x, y int) *GameObject {
 	enemyVars := map[string]float64{
-		"leftHP": 3,
-		"maxHP":  3,
+		"leftHP":   3,
+		"maxHP":    3,
+		"hasPunch": 1,
 	}
 	return NewGameObject("Skinny", x, y, game.imagePacks["Zombie"], false, 0, "", true, game,
-		enemyVars, nil, nil, []string{"enemy", "damageable"})
+		enemyVars, []string{"enemy", "damageable"}, nil)
 }
 
 func (g *Game) AddSkinnyToLayer(z, x, y int) {
@@ -50,6 +53,13 @@ func (g *Game) DoEnemyTurn() {
 		} else {
 			g.enemyScripts[enemy.name](g, enemy)
 		}
+	}
+
+	g.pawns = g.AllLayerObjectsWithTag(boardlayerZ, "player")
+
+	if len(g.pawns) == 0 {
+		fmt.Printf("All pawns defeated. You lose!\n")
+		os.Exit(0)
 	}
 
 	g.InitPlayerTurn()
@@ -71,4 +81,23 @@ func (g *Game) MoveObjectInRandomDirection(o *GameObject) {
 	chosenDirVec := possibleMoves[rand.Intn(len(possibleMoves))]
 
 	g.MoveMatrixObjects(boardlayerZ, o.x, o.y, chosenDirVec.x, chosenDirVec.y)
+}
+
+func (g *Game) ApplyEnemyAttack(oAttackable *GameObject) {
+	receiverLayer := g.MatrixLayerAtZ(boardlayerZ)
+	receiver := receiverLayer.FirstObjectAt(oAttackable.x, oAttackable.y)
+	if receiver != nil && receiver.HasTag("damageable") {
+		if dmg := oAttackable.vars["damage"]; dmg != 0.0 {
+			g.ApplyDamage(dmg, receiver, receiverLayer)
+		}
+	}
+}
+
+func (g *Game) ApplyEnemyAttackables() {
+	attackables := g.AllLayerObjects(underEnemyLayerZ)
+
+	for _, a := range attackables {
+		g.ApplyEnemyAttack(a)
+		g.MatrixLayerAtZ(underEnemyLayerZ).deleteFirstAt(a.x, a.y)
+	}
 }

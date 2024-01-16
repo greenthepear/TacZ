@@ -66,6 +66,7 @@ func (g *Game) InitObstacles(randomObstacleNum int) {
 func (g *Game) InitLayers() {
 	g.InitBackgroundLayer()
 	g.CreateNewMatrixLayerOnTop("Under", generalGridSize, generalGridWidth, generalGridHeight, 0, 0)
+	g.CreateNewMatrixLayerOnTop("EnemyUnder", generalGridSize, generalGridWidth, generalGridHeight, 0, 0)
 	g.CreateNewMatrixLayerOnTop("Board", generalGridSize, generalGridWidth, generalGridHeight, 0, 0)
 
 	g.AddPawnToLayer(boardlayerZ, 1, 1)

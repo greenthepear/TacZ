@@ -10,22 +10,24 @@ type Attack struct {
 	imagePackKey string
 	desc         string
 
-	script func(*Game, *GameObject)
+	script func(*Game, *GameObject, int, int)
 }
 
 func NewAttackable(game *Game, o *GameObject, vars map[string]float64) *GameObject {
 	return NewGameObject("attackable", o.x, o.y, game.imagePacks["UI"], true, 0, "attackable", true, game,
-		vars, nil, nil, []string{},
+		vars, []string{}, nil,
 	)
 }
 
-func shoveScript(g *Game, o *GameObject) {
-	l := g.MatrixLayerAtZ(boardlayerZ)
-	x, y := o.XY()
+func shoveScript(g *Game, o *GameObject, x, y int) {
+	if o.HasTag("player") {
+		x, y = o.XY()
+	}
 	vecsToShove := [...]vec{
 		NewVec(x, y-1), NewVec(x+1, y),
 		NewVec(x, y+1), NewVec(x-1, y),
 	}
+	l := g.MatrixLayerAtZ(boardlayerZ)
 	for i, v := range vecsToShove {
 		if l.isWithinBounds(v.x, v.y) {
 			g.AddObjectToMatrixLayer(
@@ -38,8 +40,10 @@ func shoveScript(g *Game, o *GameObject) {
 	}
 }
 
-func throwScript(g *Game, o *GameObject) {
-	x, y := o.XY()
+func throwScript(g *Game, o *GameObject, x, y int) {
+	if o.HasTag("player") {
+		x, y = o.XY()
+	}
 	vecsToThrow := [...]vec{
 		NewVec(x+2, y), NewVec(x+3, y),
 		NewVec(x-2, y), NewVec(x-3, y),
@@ -53,10 +57,26 @@ func throwScript(g *Game, o *GameObject) {
 			g.AddObjectToMatrixLayer(NewGameObject("attackable", o.x, o.y, g.imagePacks["UI"], true, 0, "attackable", true, g,
 				map[string]float64{
 					"damage": 1,
-				}, nil, nil, []string{},
+				}, []string{}, nil,
 			), underLayerZ, v.x, v.y)
 		}
 	}
+}
+
+func punchScript(g *Game, o *GameObject, x, y int) {
+	if !o.HasTag("enemy") { //only for enemies for now
+		return
+	}
+
+	attackable := NewGameObject("enemyAttackable", x, y, g.imagePacks["UI"], true, 0, "enemyAttackable", true, g,
+		map[string]float64{
+			"damage": 2,
+		}, []string{}, nil,
+	)
+
+	o.children = append(o.children, attackable)
+
+	g.AddObjectToMatrixLayer(attackable, underEnemyLayerZ, x, y)
 }
 
 func (g *Game) InitAttacks() {
@@ -67,13 +87,16 @@ func (g *Game) InitAttacks() {
 		"throwRock": {"throwRock", "hasThrowRock", "throwRock",
 			"1 damage from distance",
 			throwScript},
+		"punch": {"punch", "hasPunch", "punch",
+			"2 damage",
+			punchScript},
 	}
 }
 
 func (g *Game) CreateAttackObjectFromReference(a Attack) *GameObject {
 	return NewGameObject(
 		a.name, 0, 0, g.imagePacks["Attacks"],
-		true, 0, a.imagePackKey, true, g, map[string]float64{}, nil, nil, []string{"attack"})
+		true, 0, a.imagePackKey, true, g, map[string]float64{}, []string{"attack"}, nil)
 }
 
 func (g *Game) CreateAttackObjectsOf(o *GameObject) []*GameObject {
@@ -91,7 +114,7 @@ func (g *Game) SelectAttack(o *GameObject, attacker *GameObject) {
 	g.SimpleCreateObjectInMatrixLayer(underAttacksLayerZ, "selectedAttackIndicator", o.x, o.y, "UI", false)
 
 	g.ClearMatrixLayer(underLayerZ)
-	g.attacks[o.name].script(g, attacker)
+	g.attacks[o.name].script(g, attacker, 0, 0)
 }
 
 func (g *Game) DeselectAttack(recreateWalkables bool) {
@@ -159,10 +182,4 @@ func (g *Game) ApplyPawnAttack(oAttackable *GameObject, receiver *GameObject, re
 	g.selectedPawn.vars["canAttack"] = 0.5
 	g.DeselectAttack(true)
 	g.ClearAttackLayer()
-}
-
-func NewEnemyAttackable(game *Game, o *GameObject, vars map[string]float64) *GameObject {
-	return NewGameObject("enemyAttackable", o.x, o.y, game.imagePacks["UI"], true, 0, "attackable", true, game,
-		vars, nil, nil, []string{},
-	)
 }

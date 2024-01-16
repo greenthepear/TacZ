@@ -13,9 +13,10 @@ func NewPawn(game *Game, x, y int) *GameObject {
 		"hasThrowRock": 1,
 		"canAttack":    1,
 	}
-	return NewGameObject("Pawn", x, y, game.imagePacks["Pawn"], false, 0, "", true, game,
-		pawnVariables,
-		nil, nil, []string{"player", "selectable", "damageable"})
+
+	return NewGameObject("Pawn", x, y, game.imagePacks["Pawn"], false, 0, "", true,
+		game, pawnVariables,
+		[]string{"player", "selectable", "damageable"}, nil)
 }
 
 func (g *Game) AddPawnToLayer(z, x, y int) {

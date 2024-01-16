@@ -14,20 +14,22 @@ type GameObject struct {
 	sprKey     string //Sprite key, if in mapMode
 	visible    bool
 
-	gameRef    *Game
-	tags       []string //Can be used to determine enemies or flammable or something
-	vars       map[string]float64
-	updateFunc func()
-	createFunc func()
+	gameRef *Game
+	tags    []string //Can be used to determine enemies or flammable or something
+	vars    map[string]float64
+
+	children []*GameObject
 }
 
 func NewGameObject(
 	name string, x, y int, sprites *ImagePack, mapMode bool, sprIdx int, sprMap string, visible bool, gameRef *Game,
-	vars map[string]float64, updateFunc func(), createFunc func(), tags []string) *GameObject {
+	vars map[string]float64, tags []string, children []*GameObject) *GameObject {
 
-	varsmap := vars
 	if vars == nil {
-		varsmap = make(map[string]float64)
+		vars = make(map[string]float64)
+	}
+	if children == nil {
+		children = make([]*GameObject, 0)
 	}
 
 	gobj := &GameObject{
@@ -41,9 +43,8 @@ func NewGameObject(
 		visible:    visible,
 		gameRef:    gameRef,
 		tags:       tags,
-		vars:       varsmap,
-		updateFunc: updateFunc,
-		createFunc: createFunc,
+		vars:       vars,
+		children:   children,
 	}
 	return gobj
 }
@@ -80,7 +81,7 @@ func (g *Game) SimpleCreateObjectInMatrixLayer(matrixLayerZ int, objName string,
 		}
 	}
 
-	gobj := NewGameObject(objName, gridx, gridy, imgPack, sprMapMode, 0, sprKey, true, g, nil, nil, nil, []string{})
+	gobj := NewGameObject(objName, gridx, gridy, imgPack, sprMapMode, 0, sprKey, true, g, nil, []string{}, nil)
 	g.AddObjectToMatrixLayer(gobj, matrixLayerZ, gridx, gridy)
 	return gobj
 }

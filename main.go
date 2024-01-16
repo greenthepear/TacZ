@@ -41,6 +41,8 @@ func (g *Game) Update() error {
 	} else {
 		g.DeselectPawn()
 		g.ClearMatrixLayer(underLayerZ)
+
+		g.ApplyEnemyAttackables()
 		g.DoEnemyTurn()
 	}
 	return nil
