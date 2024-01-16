@@ -10,6 +10,7 @@ const (
 	boardlayerZ
 	underAttacksLayerZ
 	attacksLayerZ
+	emptyTopLayerZ
 )
 
 // Free layers Zs
@@ -52,7 +53,9 @@ func (g *Game) InitObstacles(randomObstacleNum int) {
 		randx := rand.Intn(generalGridWidth)
 		randy := rand.Intn(generalGridHeight)
 		if !g.MatrixLayerAtZ(boardlayerZ).isOccupied(randx, randy) {
-			g.SimpleCreateObjectInMatrixLayer(boardlayerZ, "gravestone", randx, randy, "Obstacles", false)
+			o := g.SimpleCreateObjectInMatrixLayer(boardlayerZ, "Gravestone", randx, randy, "Obstacles", false)
+			o.tags = append(o.tags, "damageable")
+			o.vars["leftHP"] = 1.0
 		}
 	}
 }
@@ -67,14 +70,18 @@ func (g *Game) InitLayers() {
 	g.AddPawnToLayer(boardlayerZ, 3, 1)
 	g.AddPawnToLayer(boardlayerZ, 4, 1)
 
-	g.AddEnemyToLayer(boardlayerZ, 9, 5)
-	g.AddEnemyToLayer(boardlayerZ, 10, 6)
+	g.AddSkinnyToLayer(boardlayerZ, 9, 5)
+	g.AddSkinnyToLayer(boardlayerZ, 10, 6)
 
-	g.AddObjectToMatrixLayer(NewGameObject(
-		"test", 0, 0, g.imagePacks["UI"], true, 0, "attackable", true, g, map[string]float64{}, nil, nil, []string{},
-	), boardlayerZ, 3, 3)
+	/*
+		g.AddObjectToMatrixLayer(NewGameObject(
+			"test", 0, 0, g.imagePacks["UI"], true, 0, "attackable", true, g, map[string]float64{}, nil, nil, []string{},
+		), boardlayerZ, 3, 3)
+	*/
 
 	g.InitObstacles(10)
 
 	g.InitUILayers()
+	g.CreateNewMatrixLayerOnTop("EmptyTop", generalGridSize, generalGridWidth, generalGridHeight, 0, 0)
+
 }

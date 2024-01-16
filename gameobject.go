@@ -80,10 +80,8 @@ func (g *Game) SimpleCreateObjectInMatrixLayer(matrixLayerZ int, objName string,
 		}
 	}
 
-	objectcell := &g.matrixLayers[matrixLayerZ].mat[gridy][gridx].objects
 	gobj := NewGameObject(objName, gridx, gridy, imgPack, sprMapMode, 0, sprKey, true, g, nil, nil, nil, []string{})
-
-	*objectcell = append(*objectcell, gobj)
+	g.AddObjectToMatrixLayer(gobj, matrixLayerZ, gridx, gridy)
 	return gobj
 }
 
@@ -93,6 +91,7 @@ func (g *Game) AddObjectToMatrixLayer(gobj *GameObject, matrixLayerZ, gridx, gri
 	}
 	gobj.x, gobj.y = gridx, gridy
 	objectcell := &g.matrixLayers[matrixLayerZ].mat[gridy][gridx].objects
+	g.matrixLayers[matrixLayerZ].numOfObjects++
 	*objectcell = append(*objectcell, gobj)
 }
 

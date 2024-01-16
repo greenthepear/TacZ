@@ -17,4 +17,4 @@ On Linux you'll need a gcc compiler and some dependencies for Ebitengine. [See m
 - Alpine: `sudo apk add alsa-lib-dev libx11-dev libxrandr-dev libxcursor-dev libxinerama-dev libxi-dev mesa-dev`
 
 # Credits
-Graphics entirely consist of a [tileset made by Ittai Manero](https://ittaimanero.itch.io/zombie-apocalypse-tileset) who generously allows it to be used in any personal and commercial project. Thanks!
+Graphics nearly entirely consist of a [tileset made by Ittai Manero](https://ittaimanero.itch.io/zombie-apocalypse-tileset) who generously allows it to be used in any personal and commercial project. Thanks!

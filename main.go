@@ -30,6 +30,8 @@ type Game struct {
 
 	attacks        map[string]Attack
 	selectedAttack *GameObject
+
+	enemyScripts map[string]func(*Game, *GameObject)
 }
 
 func (g *Game) Update() error {
@@ -55,9 +57,11 @@ func main() {
 		pawns:          make([]*GameObject, 0),
 		attacks:        nil,
 		selectedAttack: nil,
+		enemyScripts:   nil,
 	}
 	g.InitLayers()
 	g.InitAttacks()
+	g.InitEnemyScripts()
 	InitFonts()
 
 	ebiten.SetWindowSize(boardWidth*4, (boardHeight+bottomHeight)*4)

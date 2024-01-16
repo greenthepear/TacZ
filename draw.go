@@ -55,6 +55,9 @@ func (g *Game) DrawMatrixObjectAt(layerZ, x, y int, screen *ebiten.Image) {
 
 func (g *Game) DrawMatrixLayer(l *MatrixLayer, screen *ebiten.Image) {
 	z := l.z
+	if l.numOfObjects == 0 {
+		return
+	}
 	for y := 0; y < l.height; y++ {
 		for x := 0; x < l.width; x++ {
 			if g.matrixLayers[z].isOccupied(x, y) {

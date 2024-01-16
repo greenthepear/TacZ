@@ -18,6 +18,7 @@ type MatrixLayer struct {
 	width, height    int
 	mat              [][]*ObjectCell
 	xOffset, yOffset float64
+	numOfObjects     int
 }
 
 func NewObjectCell(x, y int) *ObjectCell {
@@ -51,6 +52,7 @@ func NewMatrixLayer(name string, z int, squareLength px, width, height int, xOff
 		mat:          NewObjectMatrix(width, height),
 		xOffset:      xOffset,
 		yOffset:      yOffset,
+		numOfObjects: 0,
 	}
 }
 
@@ -120,6 +122,7 @@ func (l *MatrixLayer) findObjectWithTagAt(x, y int, tag string) *GameObject {
 
 func (l *MatrixLayer) deleteAllAt(x, y int) {
 	l.mat[y][x] = NewObjectCell(x, y)
+	l.numOfObjects--
 }
 
 //lint:ignore U1000 shut up lint
@@ -149,6 +152,7 @@ func (g *Game) ClearMatrixLayer(layerZ int) {
 			g.matrixLayers[layerZ].mat[y][x] = NewObjectCell(x, y)
 		}
 	}
+	g.matrixLayers[layerZ].numOfObjects = 0
 }
 
 type FreeObjectLayer struct {

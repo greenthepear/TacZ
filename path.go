@@ -78,3 +78,32 @@ func (g *Game) FindWalkable(fromX, fromY, layerZ, distance int) []vec {
 	}
 	return vecs
 }
+
+func (g *Game) ObjectsWithinWalkable(fromX, fromY, layerZ, distance int) []*GameObject {
+	r := make([]*GameObject, 0)
+	vecs := g.FindWalkable(fromX, fromY, emptyTopLayerZ, distance)
+	l := g.MatrixLayerAtZ(layerZ)
+	for _, v := range vecs {
+		if o := l.FirstObjectAt(v.x, v.y); o != nil {
+			r = append(r, o)
+		}
+	}
+	return r
+}
+
+func (g *Game) FindObjectsWithTagWithinWalkable(fromX, fromY, layerZ, distance int,
+	tag string, oIgnore *GameObject) []*GameObject {
+
+	objects := g.ObjectsWithinWalkable(fromX, fromY, layerZ, distance)
+	r := make([]*GameObject, 0)
+	for _, o := range objects {
+		if oIgnore != nil && o == oIgnore {
+			continue
+		}
+		if o.HasTag(tag) {
+			r = append(r, o)
+		}
+	}
+
+	return r
+}
