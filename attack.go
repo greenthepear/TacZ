@@ -160,3 +160,9 @@ func (g *Game) ApplyPawnAttack(oAttackable *GameObject, receiver *GameObject, re
 	g.DeselectAttack(true)
 	g.ClearAttackLayer()
 }
+
+func NewEnemyAttackable(game *Game, o *GameObject, vars map[string]float64) *GameObject {
+	return NewGameObject("enemyAttackable", o.x, o.y, game.imagePacks["UI"], true, 0, "attackable", true, game,
+		vars, nil, nil, []string{},
+	)
+}

@@ -7,9 +7,17 @@ import (
 )
 
 func skinnyScript(g *Game, o *GameObject) {
-	players := g.FindObjectsWithTagWithinWalkable(o.x, o.y, boardlayerZ, 4, "player", o)
-	//dist := len(players) > 0
-	fmt.Println(players)
+	players := g.FindObjectsWithTagWithinDistance(o.x, o.y, boardlayerZ, 4, "player")
+
+	if len(players) > 0 {
+		p := players[0]
+		fmt.Printf("Found player at (%d, %d), from (%d,%d)\n",
+			p.v.x, p.v.y, p.v.prev.x, p.v.prev.y)
+		toX, toY := p.v.prev.x, p.v.prev.y
+		if toX != o.x && toY != o.y {
+			g.MoveMatrixObjects(boardlayerZ, o.x, o.y, toX, toY)
+		}
+	}
 }
 
 func (g *Game) InitEnemyScripts() {

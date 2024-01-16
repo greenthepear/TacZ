@@ -5,12 +5,15 @@ import "math/rand"
 
 // Matrix layers Zs
 const (
-	backgroundLayerZ = iota
-	underLayerZ
-	boardlayerZ
-	underAttacksLayerZ
-	attacksLayerZ
-	emptyTopLayerZ
+	backgroundLayerZ = iota //background ground
+	underEnemyLayerZ        //enemy spawned attackables
+	underLayerZ             //player spawned attackables and walkables
+
+	boardlayerZ //Pawns, enemy objects, obstacles
+
+	underAttacksLayerZ //UI, for signifying chosen attack
+	attacksLayerZ      //Attack selection
+	emptyTopLayerZ     //Testing and potentially pathfinding
 )
 
 // Free layers Zs
@@ -54,7 +57,7 @@ func (g *Game) InitObstacles(randomObstacleNum int) {
 		randy := rand.Intn(generalGridHeight)
 		if !g.MatrixLayerAtZ(boardlayerZ).isOccupied(randx, randy) {
 			o := g.SimpleCreateObjectInMatrixLayer(boardlayerZ, "Gravestone", randx, randy, "Obstacles", false)
-			o.tags = append(o.tags, "damageable")
+			o.tags = []string{"damageable", "obstacle"}
 			o.vars["leftHP"] = 1.0
 		}
 	}
