@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 )
 
 type px int
@@ -120,16 +121,36 @@ func (l *MatrixLayer) findObjectWithTagAt(x, y int, tag string) *GameObject {
 	return nil
 }
 
+func (l *MatrixLayer) deleteAllAt(x, y int, addDeletedVar bool) {
+	if addDeletedVar {
+		for _, o := range l.mat[y][x].objects {
+			o.vars["DELETED"] = 1.0
+		}
+	}
+	l.mat[y][x] = NewObjectCell(x, y)
+	l.numOfObjects--
+}
+
 func (l *MatrixLayer) deleteFirstAt(x, y int) {
+	if len(l.mat[y][x].objects) == 1 {
+		l.deleteAllAt(x, y, true)
+		return
+	}
 	l.mat[y][x].objects = l.mat[y][x].objects[1:]
+}
+
+func (l *MatrixLayer) deleteAtZ(x, y, z int, addDeletedVar bool) {
+	if len(l.mat[y][x].objects) <= z {
+		log.Fatalf("deleteAtZ error: no object at z `%d`, all objects:\n%v", z, l.mat[y][x].objects)
+	}
+	if len(l.mat[y][x].objects) == 1 {
+		l.deleteAllAt(x, y, addDeletedVar)
+		return
+	}
+	l.mat[y][x].objects = append(l.mat[y][x].objects[:z], l.mat[y][x].objects[z+1:]...)
 	if len(l.mat[y][x].objects) == 0 {
 		l.numOfObjects--
 	}
-}
-
-func (l *MatrixLayer) deleteAllAt(x, y int) {
-	l.mat[y][x] = NewObjectCell(x, y)
-	l.numOfObjects--
 }
 
 //lint:ignore U1000 shut up lint
@@ -162,6 +183,43 @@ func (g *Game) ClearMatrixLayer(layerZ int) {
 	g.matrixLayers[layerZ].numOfObjects = 0
 }
 
+func (l *MatrixLayer) AllObjects() []*GameObject {
+	r := make([]*GameObject, 0)
+	for y := range l.mat {
+		for x := range l.mat[y] {
+			o := l.AllObjectsAt(x, y)
+			if o == nil {
+				continue
+			}
+			r = append(r, o...)
+		}
+	}
+	return r
+}
+
+func (l *MatrixLayer) checkForIntegrity() {
+	for y := range l.mat {
+		for x := range l.mat[y] {
+			obs := l.mat[y][x]
+			if obs.x != x || obs.y != y {
+				log.Printf("Layer '%s' has mismatched cell x y: real (%d,%d) != (%d, %d):\n%#v",
+					l.name, x, y, obs.x, obs.y, obs)
+			}
+
+			for z, o := range obs.objects {
+				if o.x != x || o.y != y {
+					log.Printf("Layer '%s' has mismatched object x y: real (%d,%d) != (%d, %d):\n%#v",
+						l.name, x, y, o.x, o.y, o)
+				}
+				if l.ObjectAtZ(x, y, z) != o {
+					log.Printf("Layer '%s' has mismatched object z: real %d != %d:\n%#v\nwithin\n%#v",
+						l.name, len(l.AllObjectsAt(x, y)), z, o, obs)
+				}
+			}
+		}
+	}
+}
+
 type FreeObjectLayer struct {
 	name    string
 	z       int
@@ -186,18 +244,7 @@ func (g *Game) ClearFreeLayer(layerZ int) {
 }
 
 func (g *Game) AllLayerObjects(layerZ int) []*GameObject {
-	r := make([]*GameObject, 0)
-	l := g.MatrixLayerAtZ(layerZ)
-	for y := range g.matrixLayers[layerZ].mat {
-		for x := range g.matrixLayers[layerZ].mat[y] {
-			o := l.AllObjectsAt(x, y)
-			if o == nil {
-				continue
-			}
-			r = append(r, o...)
-		}
-	}
-	return r
+	return g.MatrixLayerAtZ(layerZ).AllObjects()
 }
 
 func (g *Game) AllLayerObjectsWithTag(layerZ int, tag string) []*GameObject {

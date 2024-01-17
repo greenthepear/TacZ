@@ -1,12 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"log"
 )
 
 type GameObject struct {
-	name string
-	x, y int
+	name  string
+	x, y  int
+	cellZ int
 
 	sprites    *ImagePack
 	sprMapMode bool
@@ -58,6 +60,10 @@ func (o *GameObject) HasTag(tag string) bool {
 	return false
 }
 
+func (o *GameObject) HasChildren() bool {
+	return len(o.children) > 0
+}
+
 func (o *GameObject) XY() (int, int) {
 	return o.x, o.y
 }
@@ -92,15 +98,25 @@ func (g *Game) AddObjectToMatrixLayer(gobj *GameObject, matrixLayerZ, gridx, gri
 	}
 	gobj.x, gobj.y = gridx, gridy
 	objectcell := &g.matrixLayers[matrixLayerZ].mat[gridy][gridx].objects
+	gobj.cellZ = len(*objectcell)
 	g.matrixLayers[matrixLayerZ].numOfObjects++
 	*objectcell = append(*objectcell, gobj)
 }
 
-func (g *Game) MoveMatrixObjects(layerZ, fromX, fromY, toX, toY int) {
+func (g *Game) MoveMatrixObject(layerZ, fromX, fromY, toX, toY, cellZ int) {
+	l := g.matrixLayers[layerZ]
+	o := l.ObjectAtZ(fromX, fromY, cellZ)
+	o.x = toX
+	o.y = toY
+	g.AddObjectToMatrixLayer(o, layerZ, toX, toY)
+	l.deleteAtZ(fromX, fromY, cellZ, false)
+}
+
+func (g *Game) MoveMatrixObjects(layerZ, fromX, fromY, toX, toY int) error {
 	l := g.matrixLayers[layerZ]
 	cell := l.ObjectCellAt(fromX, fromY)
 	if len(cell.objects) == 0 {
-		log.Fatalf("Cell at (%d, %d) empty:\n%#v", fromX, fromY, cell)
+		return fmt.Errorf("[%d] Cell at (%d, %d) empty:\n%#v", layerZ, fromX, fromY, cell)
 	}
 	for _, obj := range cell.objects {
 		obj.x = toX
@@ -108,6 +124,7 @@ func (g *Game) MoveMatrixObjects(layerZ, fromX, fromY, toX, toY int) {
 	}
 	g.matrixLayers[layerZ].mat[toY][toX].objects = cell.objects
 	g.matrixLayers[layerZ].mat[fromY][fromX] = NewObjectCell(fromX, fromY)
+	return nil
 }
 
 func (g *Game) AddObjectToFreeLayer(z int, o *GameObject) {

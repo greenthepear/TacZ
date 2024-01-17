@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
 const shoveBumpDamage = 1
 
@@ -137,20 +140,50 @@ func (g *Game) ApplyDamage(dmg float64, receiver *GameObject, receiverLayer *Mat
 	fmt.Printf("%s damaged for %.0f.\n", receiver.name, dmg)
 	if receiver.vars["leftHP"] <= 0 {
 		fmt.Printf("%s destroyed!\n", receiver.name)
-		receiverLayer.deleteAllAt(receiver.x, receiver.y)
+		if receiver.HasChildren() {
+			for _, c := range receiver.children {
+				if c == nil || c.vars["DELETED"] == 1.0 {
+					continue
+				}
+
+				cx, cy, cz := c.x, c.y, c.cellZ
+
+				g.MatrixLayerAtZ(underEnemyLayerZ).deleteAtZ(cx, cy, cz, true)
+			}
+		}
+		receiverLayer.deleteAllAt(receiver.x, receiver.y, true)
 		return true
 	}
 	return false
 }
 
-func (g *Game) ApplyShove(dir float64, receiver *GameObject) bool {
-	x, y := receiver.XY()
-	shoveVecs := map[float64]vec{
+func shoveVecForDir(dir float64, x, y int) vec {
+	switch dir {
+	case 1.0:
+		return NewVec(x, y-1)
+	case 2.0:
+		return NewVec(x+1, y)
+	case 3.0:
+		return NewVec(x, y+1)
+	case 4.0:
+		return NewVec(x-1, y)
+	default:
+		return NewVec(x, y)
+	}
+}
+
+func createShoveVecs(x, y int) map[float64]vec {
+	return map[float64]vec{
 		1.0: NewVec(x, y-1),
 		2.0: NewVec(x+1, y),
 		3.0: NewVec(x, y+1),
 		4.0: NewVec(x-1, y),
 	}
+}
+
+func (g *Game) ApplyShove(dir float64, receiver *GameObject) bool {
+	x, y := receiver.XY()
+	shoveVecs := createShoveVecs(x, y)
 	shoveVec := shoveVecs[dir]
 	l := g.MatrixLayerAtZ(boardlayerZ)
 	if !l.isWithinBounds(shoveVec.x, shoveVec.y) {
@@ -159,7 +192,32 @@ func (g *Game) ApplyShove(dir float64, receiver *GameObject) bool {
 
 	oAtShoveDir := l.FirstObjectAt(shoveVec.x, shoveVec.y)
 	if oAtShoveDir == nil {
-		g.MoveMatrixObjects(boardlayerZ, x, y, shoveVec.x, shoveVec.y)
+		err := g.MoveMatrixObjects(boardlayerZ, x, y, shoveVec.x, shoveVec.y)
+
+		if err != nil {
+			log.Fatal("ERROR IN `ApplyShove` when moving object:\n", err)
+		}
+
+		if !receiver.HasChildren() {
+			return false
+		}
+
+		//Move children
+		for _, c := range receiver.children {
+			if c == nil || c.vars["DELETED"] == 1.0 {
+				continue
+			}
+			cx, cy, cz := c.x, c.y, c.cellZ
+			childVec := shoveVecForDir(dir, cx, cy)
+
+			lc := g.MatrixLayerAtZ(underEnemyLayerZ)
+			if !lc.isWithinBounds(childVec.x, childVec.y) {
+				lc.deleteAtZ(cx, cy, cz, true)
+				continue
+			}
+
+			g.MoveMatrixObject(underEnemyLayerZ, cx, cy, childVec.x, childVec.y, cz)
+		}
 		return false
 	}
 

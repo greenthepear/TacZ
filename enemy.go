@@ -16,7 +16,10 @@ func skinnyScript(g *Game, o *GameObject) {
 			p.v.x, p.v.y, p.v.prev.x, p.v.prev.y)
 		toX, toY := p.v.prev.x, p.v.prev.y
 		if !(toX == o.x && toY == o.y) {
-			g.MoveMatrixObjects(boardlayerZ, o.x, o.y, toX, toY)
+			err := g.MoveMatrixObjects(boardlayerZ, o.x, o.y, toX, toY)
+			if err != nil {
+				log.Fatalf("ERROR IN skinnyScript when moving object `%v`:\n%v", o, err)
+			}
 		}
 		g.attacks["punch"].script(g, o, p.v.x, p.v.y)
 	}
@@ -47,6 +50,9 @@ func (g *Game) AddSkinnyToLayer(z, x, y int) {
 func (g *Game) DoEnemyTurn() {
 	fmt.Printf("Doing enemy turn...\n")
 	for _, enemy := range g.enemies {
+		if enemy.vars["DELETED"] == 1.0 {
+			continue
+		}
 		if g.enemyScripts[enemy.name] == nil {
 			log.Printf("Enemy '%v' has no script.\n", enemy.name)
 			g.MoveObjectInRandomDirection(enemy)
@@ -97,6 +103,9 @@ func (g *Game) ApplyEnemyAttackables() {
 	attackables := g.AllLayerObjects(underEnemyLayerZ)
 
 	for _, a := range attackables {
+		if a.vars["DELETED"] == 1.0 {
+			continue
+		}
 		g.ApplyEnemyAttack(a)
 		g.MatrixLayerAtZ(underEnemyLayerZ).deleteFirstAt(a.x, a.y)
 	}

@@ -103,5 +103,13 @@ func (g *Game) CheckForTurnEndButton() {
 			fmt.Printf("All enemies defeated. You win!\n")
 			os.Exit(0)
 		}
+
+		g.MatrixLayerAtZ(boardlayerZ).checkForIntegrity()
+		g.MatrixLayerAtZ(underEnemyLayerZ).checkForIntegrity()
+
+		//Reset children
+		for _, o := range g.enemies {
+			o.children = make([]*GameObject, 0)
+		}
 	}
 }

@@ -65,8 +65,8 @@ func (g *Game) InitObstacles(randomObstacleNum int) {
 
 func (g *Game) InitLayers() {
 	g.InitBackgroundLayer()
-	g.CreateNewMatrixLayerOnTop("Under", generalGridSize, generalGridWidth, generalGridHeight, 0, 0)
 	g.CreateNewMatrixLayerOnTop("EnemyUnder", generalGridSize, generalGridWidth, generalGridHeight, 0, 0)
+	g.CreateNewMatrixLayerOnTop("Under", generalGridSize, generalGridWidth, generalGridHeight, 0, 0)
 	g.CreateNewMatrixLayerOnTop("Board", generalGridSize, generalGridWidth, generalGridHeight, 0, 0)
 
 	g.AddPawnToLayer(boardlayerZ, 1, 1)
@@ -76,12 +76,8 @@ func (g *Game) InitLayers() {
 
 	g.AddSkinnyToLayer(boardlayerZ, 9, 5)
 	g.AddSkinnyToLayer(boardlayerZ, 10, 6)
-
-	/*
-		g.AddObjectToMatrixLayer(NewGameObject(
-			"test", 0, 0, g.imagePacks["UI"], true, 0, "attackable", true, g, map[string]float64{}, nil, nil, []string{},
-		), boardlayerZ, 3, 3)
-	*/
+	g.AddSkinnyToLayer(boardlayerZ, 11, 6)
+	g.AddSkinnyToLayer(boardlayerZ, 8, 6)
 
 	g.InitObstacles(10)
 
