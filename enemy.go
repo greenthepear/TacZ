@@ -10,7 +10,7 @@ import (
 func skinnyScript(g *Game, o *GameObject) {
 	players := g.FindObjectsWithTagWithinDistance(o.x, o.y, boardlayerZ, 4, "player")
 
-	if len(players) > 0 {
+	if len(players) > 0 { //Threaten enemy
 		p := players[0]
 		fmt.Printf("Found player at (%d, %d), from (%d,%d)\n",
 			p.v.x, p.v.y, p.v.prev.x, p.v.prev.y)
@@ -22,6 +22,15 @@ func skinnyScript(g *Game, o *GameObject) {
 			}
 		}
 		g.attacks["punch"].script(g, o, p.v.x, p.v.y)
+	} else { //Apply hp boost
+		for _, o := range g.enemies {
+			if o.IsMarkedForDeletion() {
+				continue
+			}
+
+			o.vars["maxHP"] += 1
+			o.vars["leftHP"] += 1
+		}
 	}
 }
 
@@ -50,7 +59,7 @@ func (g *Game) AddSkinnyToLayer(z, x, y int) {
 func (g *Game) DoEnemyTurn() {
 	fmt.Printf("Doing enemy turn...\n")
 	for _, enemy := range g.enemies {
-		if enemy.vars["DELETED"] == 1.0 {
+		if enemy.IsMarkedForDeletion() {
 			continue
 		}
 		if g.enemyScripts[enemy.name] == nil {

@@ -14,6 +14,9 @@ import (
 
 var fontPressStart font.Face
 
+//lint:ignore U1000 might be useful
+var fontMP font.Face
+
 func InitFonts() {
 	tt, err := opentype.Parse(fonts.PressStart2P_ttf)
 	if err != nil {
@@ -21,6 +24,18 @@ func InitFonts() {
 	}
 	fontPressStart, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    8,
+		DPI:     72,
+		Hinting: font.HintingNone,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	tt2, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fontMP, err = opentype.NewFace(tt2, &opentype.FaceOptions{
+		Size:    4,
 		DPI:     72,
 		Hinting: font.HintingNone,
 	})
@@ -75,5 +90,33 @@ func (g *Game) DrawSelectedPawnInfo(screen *ebiten.Image) {
 	} else {
 		g.ClearFreeLayer(pawnInfoLayerZ)
 		g.ClearMatrixLayer(attacksLayerZ)
+	}
+}
+
+//lint:ignore U1000 might be useful
+func genHPstring(hp, maxHP int) string {
+	str := ""
+	for i := 0; i < maxHP; i++ {
+		if hp < 1 {
+			str += "░"
+			continue
+		}
+		str += "█"
+		hp--
+	}
+	return str
+}
+
+func (g *Game) DrawEnemyHP(screen *ebiten.Image) {
+	for _, o := range g.enemies {
+		if o.IsMarkedForDeletion() {
+			continue
+		}
+
+		sx, sy := o.ScreenPosition(*g.MatrixLayerAtZ(boardlayerZ))
+		sy += 8
+		hp, hpMax := o.vars["leftHP"], o.vars["maxHP"]
+		str := fmt.Sprintf("%.0f/\n%.0f", hp, hpMax)
+		text.Draw(screen, str, fontPressStart, sx, sy, color.White)
 	}
 }

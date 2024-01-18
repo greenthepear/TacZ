@@ -82,6 +82,12 @@ func punchScript(g *Game, o *GameObject, x, y int) {
 	g.AddObjectToMatrixLayer(attackable, underEnemyLayerZ, x, y)
 }
 
+func entrapScript(g *Game, o *GameObject) {
+	if !o.HasTag("enemy") { //only for enemies for now
+		return
+	}
+}
+
 func (g *Game) InitAttacks() {
 	g.attacks = map[string]Attack{
 		"shove": {"shove", "hasShove", "shove",

@@ -93,6 +93,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.DrawAllFreeLayers(screen)
 	g.DrawCursor(screen)
 	g.DrawSelectedPawnInfo(screen)
+	g.DrawEnemyHP(screen)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {

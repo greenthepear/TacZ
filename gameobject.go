@@ -72,6 +72,16 @@ func (o *GameObject) Vec() vec {
 	return NewVec(o.x, o.y)
 }
 
+func (o *GameObject) ScreenPosition(l MatrixLayer) (int, int) {
+	return o.x*int(l.squareLength) + int(l.xOffset),
+		o.y*int(l.squareLength) + int(l.yOffset)
+
+}
+
+func (o *GameObject) IsMarkedForDeletion() bool {
+	return o.vars["DELETED"] == 1.0
+}
+
 func (g *Game) SimpleCreateObjectInMatrixLayer(matrixLayerZ int, objName string, gridx, gridy int, imagePackName string, sprMapMode bool) *GameObject {
 	if len(g.matrixLayers) < matrixLayerZ {
 		log.Fatalf("No layer %d", matrixLayerZ)
