@@ -10,6 +10,8 @@ type GameObject struct {
 	x, y  int
 	cellZ int
 
+	layer *MatrixLayer
+
 	sprites    *ImagePack
 	sprMapMode bool
 	sprIdx     int    //Sprite index
@@ -21,6 +23,7 @@ type GameObject struct {
 	vars    map[string]float64
 
 	children []*GameObject
+	parent   *GameObject
 }
 
 func NewGameObject(
@@ -60,6 +63,11 @@ func (o *GameObject) HasTag(tag string) bool {
 	return false
 }
 
+func (o *GameObject) AddChild(co *GameObject) {
+	o.children = append(o.children, co)
+	co.parent = o
+}
+
 func (o *GameObject) HasChildren() bool {
 	return len(o.children) > 0
 }
@@ -76,6 +84,10 @@ func (o *GameObject) ScreenPosition(l MatrixLayer) (int, int) {
 	return o.x*int(l.squareLength) + int(l.xOffset),
 		o.y*int(l.squareLength) + int(l.yOffset)
 
+}
+
+func (o *GameObject) MarkForDeletion() {
+	o.vars["DELETED"] = 1.0
 }
 
 func (o *GameObject) IsMarkedForDeletion() bool {
@@ -107,19 +119,54 @@ func (g *Game) AddObjectToMatrixLayer(gobj *GameObject, matrixLayerZ, gridx, gri
 		log.Fatalf("No layer %d", matrixLayerZ)
 	}
 	gobj.x, gobj.y = gridx, gridy
-	objectcell := &g.matrixLayers[matrixLayerZ].mat[gridy][gridx].objects
-	gobj.cellZ = len(*objectcell)
+
+	gobj.cellZ = len(g.matrixLayers[matrixLayerZ].mat[gridy][gridx].objects)
+	gobj.layer = g.matrixLayers[matrixLayerZ]
 	g.matrixLayers[matrixLayerZ].numOfObjects++
-	*objectcell = append(*objectcell, gobj)
+	g.matrixLayers[matrixLayerZ].mat[gridy][gridx].objects = append(g.matrixLayers[matrixLayerZ].mat[gridy][gridx].objects, gobj)
+
+	//Lazy cellZ refresh
+	for i := range g.matrixLayers[matrixLayerZ].mat[gridy][gridx].objects {
+		g.matrixLayers[matrixLayerZ].mat[gridy][gridx].objects[i].cellZ = i
+	}
 }
 
 func (g *Game) MoveMatrixObject(layerZ, fromX, fromY, toX, toY, cellZ int) {
 	l := g.matrixLayers[layerZ]
 	o := l.ObjectAtZ(fromX, fromY, cellZ)
+	if o == nil {
+		log.Fatalf(
+			"MOVE ERROR while trying to move from (%d,%d) to (%d,%d) in matrix layer %v\n:\tno object at (%d,%d)*%d\n%#v",
+			fromX, fromY, toX, toY, l.name, fromX, fromY, cellZ, l.mat[fromY][fromX])
+	}
 	o.x = toX
 	o.y = toY
 	g.AddObjectToMatrixLayer(o, layerZ, toX, toY)
-	l.deleteAtZ(fromX, fromY, cellZ, false)
+	err := l.deleteAtZ(fromX, fromY, cellZ, false)
+	if err != nil {
+		log.Fatalf("MOVE ERROR while moving object %#v:\n%v", o, err)
+	}
+}
+
+func (o *GameObject) MoveTo(x, y int) {
+	o.gameRef.MoveMatrixObject(o.layer.z, o.x, o.y, x, y, o.cellZ)
+}
+
+func (o *GameObject) checkForIntegrity() {
+	g := o.gameRef
+	l := o.layer
+
+	objects := g.AllLayerObjects(l.z)
+
+	foundself := false
+	for _, oo := range objects {
+		if oo == o {
+			foundself = true
+		}
+	}
+	if !foundself {
+		log.Fatalf("Object %#v couldn't find itself", o)
+	}
 }
 
 func (g *Game) MoveMatrixObjects(layerZ, fromX, fromY, toX, toY int) error {

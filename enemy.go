@@ -10,18 +10,41 @@ import (
 func skinnyScript(g *Game, o *GameObject) {
 	players := g.FindObjectsWithTagWithinDistance(o.x, o.y, boardlayerZ, 4, "player")
 
-	if len(players) > 0 { //Threaten enemy
-		p := players[0]
-		fmt.Printf("Found player at (%d, %d), from (%d,%d)\n",
-			p.v.x, p.v.y, p.v.prev.x, p.v.prev.y)
-		toX, toY := p.v.prev.x, p.v.prev.y
-		if !(toX == o.x && toY == o.y) {
-			err := g.MoveMatrixObjects(boardlayerZ, o.x, o.y, toX, toY)
-			if err != nil {
-				log.Fatalf("ERROR IN skinnyScript when moving object `%v`:\n%v", o, err)
+	if len(players) > 0 { //Threaten player
+		var trappedPlayer objectWithVec
+		foundTrappedPlayer := false
+		for _, player := range players {
+			if g.IsPawnTrapped(player.o) {
+				trappedPlayer = player
+				foundTrappedPlayer = true
+				break
 			}
 		}
-		g.attacks["punch"].script(g, o, p.v.x, p.v.y)
+		if foundTrappedPlayer {
+			p := trappedPlayer
+			//fmt.Printf("Found trapped player at (%d, %d), from (%d,%d)\n",
+			//	p.v.x, p.v.y, p.v.prev.x, p.v.prev.y)
+			toX, toY := p.v.prev.x, p.v.prev.y
+			if !(toX == o.x && toY == o.y) {
+				err := g.MoveMatrixObjects(boardlayerZ, o.x, o.y, toX, toY)
+				if err != nil {
+					log.Fatalf("ERROR IN skinnyScript when moving object `%v`:\n%v", o, err)
+				}
+			}
+			g.attacks["punch"].script(g, o, p.v.x, p.v.y)
+		} else {
+			p := players[0]
+			//fmt.Printf("Found player at (%d, %d), from (%d,%d)\n",
+			//	p.v.x, p.v.y, p.v.prev.x, p.v.prev.y)
+			toX, toY := p.v.prev.x, p.v.prev.y
+			if !(toX == o.x && toY == o.y) {
+				err := g.MoveMatrixObjects(boardlayerZ, o.x, o.y, toX, toY)
+				if err != nil {
+					log.Fatalf("ERROR IN skinnyScript when moving object `%v`:\n%v", o, err)
+				}
+			}
+			g.attacks["trap"].script(g, o, p.v.x, p.v.y)
+		}
 	} else { //Apply hp boost
 		for _, o := range g.enemies {
 			if o.IsMarkedForDeletion() {
@@ -116,6 +139,9 @@ func (g *Game) ApplyEnemyAttackables() {
 			continue
 		}
 		g.ApplyEnemyAttack(a)
-		g.MatrixLayerAtZ(underEnemyLayerZ).deleteFirstAt(a.x, a.y)
+		err := g.MatrixLayerAtZ(underEnemyLayerZ).deleteAtZ(a.x, a.y, a.cellZ, true)
+		if err != nil {
+			log.Fatalf("ERROR while deleting attackable %#v:\n%v", a, err)
+		}
 	}
 }

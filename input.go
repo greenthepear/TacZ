@@ -41,6 +41,9 @@ func (g *Game) HandleBoardSelection(sx, sy int) {
 		g.MoveMatrixObjects(boardlayerZ, g.selectedPawn.x, g.selectedPawn.y, sx, sy)
 		g.selectedPawn.vars["leftMovement"] -= objWalkable.vars["dist"]
 		g.ClearMatrixLayer(underLayerZ)
+		if g.IsPawnTrapped(g.selectedPawn) {
+			return
+		}
 		g.CreateWalkablesOfSelectedPawn()
 		return
 	}
@@ -54,6 +57,9 @@ func (g *Game) HandleBoardSelection(sx, sy int) {
 			}
 			g.SelectPawn(obj)
 			//fmt.Println(g.FindWalkable(obj.x, obj.y, boardlayerZ, int(obj.vars["leftMovement"])))
+			if g.IsPawnTrapped(g.selectedPawn) {
+				return
+			}
 			g.CreateWalkablesOfSelectedPawn()
 		} else {
 			g.DeselectPawn()
@@ -75,12 +81,33 @@ func (g *Game) HandleAttackSelection(sx, sy int) {
 	}
 }
 
+func (g *Game) debugClick(sx, sy int) {
+	sx, sy = g.CursorXYtoMatrixGrid(boardlayerZ, sx, sy)
+	for _, l := range g.matrixLayers {
+		if !l.isWithinBounds(sx, sy) {
+			continue
+		}
+		fmt.Printf("\nLayer %d '%v':\n", l.z, l.name)
+		for _, o := range l.AllObjectsAt(sx, sy) {
+			fmt.Printf("\t-------\n%#v\n", o)
+		}
+	}
+}
+
 func (g *Game) HandleClickControls() {
-	if !inpututil.IsMouseButtonJustPressed(ebiten.MouseButton0) {
+	leftm := inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft)
+	rightm := inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight)
+	if !(leftm || rightm) {
 		return
 	}
 	cx, cy := ebiten.CursorPosition()
 	sx, sy := snapXYtoGrid(generalGridSize, cx, cy)
+
+	if rightm {
+		g.debugClick(sx, sy)
+		return
+	}
+
 	if g.IsXYWithingMatrixLayerBounds(boardlayerZ, sx, sy) {
 		g.HandleBoardSelection(sx, sy)
 		return
@@ -107,9 +134,15 @@ func (g *Game) CheckForTurnEndButton() {
 		g.MatrixLayerAtZ(boardlayerZ).checkForIntegrity()
 		g.MatrixLayerAtZ(underEnemyLayerZ).checkForIntegrity()
 
-		//Reset children
+		//Refresh children
 		for _, o := range g.enemies {
-			o.children = make([]*GameObject, 0)
+			oldChildren := o.children
+			for _, c := range oldChildren {
+				if c.IsMarkedForDeletion() {
+					continue
+				}
+				o.AddChild(c)
+			}
 		}
 	}
 }

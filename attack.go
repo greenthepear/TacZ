@@ -77,15 +77,21 @@ func punchScript(g *Game, o *GameObject, x, y int) {
 		}, []string{}, nil,
 	)
 
-	o.children = append(o.children, attackable)
+	o.AddChild(attackable)
 
 	g.AddObjectToMatrixLayer(attackable, underEnemyLayerZ, x, y)
 }
 
-func entrapScript(g *Game, o *GameObject) {
+func entrapScript(g *Game, o *GameObject, x, y int) {
 	if !o.HasTag("enemy") { //only for enemies for now
 		return
 	}
+
+	trapIndicator := NewGameObject("trapIndicator", x, y, g.imagePacks["Effects"], true, 0, "trap", true, g,
+		map[string]float64{}, []string{"destroysWhenMoved", "entraps"}, nil)
+	g.AddObjectToMatrixLayer(trapIndicator, effectsLayerZ, x, y)
+
+	o.AddChild(trapIndicator)
 }
 
 func (g *Game) InitAttacks() {
@@ -99,6 +105,9 @@ func (g *Game) InitAttacks() {
 		"punch": {"punch", "hasPunch", "punch",
 			"2 damage",
 			punchScript},
+		"trap": {"trap", "hasTrap", "trap",
+			"entraps",
+			entrapScript},
 	}
 }
 
@@ -131,7 +140,7 @@ func (g *Game) DeselectAttack(recreateWalkables bool) {
 	g.ClearMatrixLayer(underAttacksLayerZ)
 	g.ClearMatrixLayer(underLayerZ)
 
-	if recreateWalkables {
+	if recreateWalkables && !g.IsPawnTrapped(g.selectedPawn) {
 		g.CreateWalkablesOfSelectedPawn()
 	}
 }
@@ -146,15 +155,21 @@ func (g *Game) ApplyDamage(dmg float64, receiver *GameObject, receiverLayer *Mat
 	fmt.Printf("%s damaged for %.0f.\n", receiver.name, dmg)
 	if receiver.vars["leftHP"] <= 0 {
 		fmt.Printf("%s destroyed!\n", receiver.name)
+		if g.IsPawnTrapped(receiver) {
+			g.MatrixLayerAtZ(effectsLayerZ).deleteAllAt(receiver.x, receiver.y, true)
+		}
 		if receiver.HasChildren() {
 			for _, c := range receiver.children {
-				if c == nil || c.vars["DELETED"] == 1.0 {
+				if c == nil || c.IsMarkedForDeletion() {
 					continue
 				}
 
-				cx, cy, cz := c.x, c.y, c.cellZ
+				cx, cy, cz, lc := c.x, c.y, c.cellZ, c.layer
 
-				g.MatrixLayerAtZ(underEnemyLayerZ).deleteAtZ(cx, cy, cz, true)
+				err := g.MatrixLayerAtZ(lc.z).deleteAtZ(cx, cy, cz, true)
+				if err != nil {
+					log.Fatalf("ERROR while deleting children of %v after dying:\n%v", receiver, err)
+				}
 			}
 		}
 		receiverLayer.deleteAllAt(receiver.x, receiver.y, true)
@@ -210,19 +225,32 @@ func (g *Game) ApplyShove(dir float64, receiver *GameObject) bool {
 
 		//Move children
 		for _, c := range receiver.children {
-			if c == nil || c.vars["DELETED"] == 1.0 {
+			if c == nil ||
+				c.IsMarkedForDeletion() {
 				continue
 			}
+			lc := g.MatrixLayerAtZ(underEnemyLayerZ)
 			cx, cy, cz := c.x, c.y, c.cellZ
+
+			if c.HasTag("destroysWhenMoved") {
+				g.MatrixLayerAtZ(c.layer.z).deleteAllAt(cx, cy, true)
+				continue
+			}
+
 			childVec := shoveVecForDir(dir, cx, cy)
 
-			lc := g.MatrixLayerAtZ(underEnemyLayerZ)
 			if !lc.isWithinBounds(childVec.x, childVec.y) {
-				lc.deleteAtZ(cx, cy, cz, true)
+				err := lc.deleteAtZ(cx, cy, cz, true)
+				if err != nil {
+					log.Fatalf("ERROR while deleting children of %v when not in bounds:\n%v", receiver, err)
+				}
 				continue
 			}
 
-			g.MoveMatrixObject(underEnemyLayerZ, cx, cy, childVec.x, childVec.y, cz)
+			//log.Printf("Trying to shove:\n%#v which is withing layer %v '%v'", c, c.layer.z, c.layer.name)
+
+			//g.MoveMatrixObject(c.layer.z, cx, cy, childVec.x, childVec.y, cz)
+			c.MoveTo(childVec.x, childVec.y)
 		}
 		return false
 	}

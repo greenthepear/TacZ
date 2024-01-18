@@ -124,7 +124,7 @@ func (l *MatrixLayer) findObjectWithTagAt(x, y int, tag string) *GameObject {
 func (l *MatrixLayer) deleteAllAt(x, y int, addDeletedVar bool) {
 	if addDeletedVar {
 		for _, o := range l.mat[y][x].objects {
-			o.vars["DELETED"] = 1.0
+			o.MarkForDeletion()
 		}
 	}
 	l.mat[y][x] = NewObjectCell(x, y)
@@ -139,18 +139,28 @@ func (l *MatrixLayer) deleteFirstAt(x, y int) {
 	l.mat[y][x].objects = l.mat[y][x].objects[1:]
 }
 
-func (l *MatrixLayer) deleteAtZ(x, y, z int, addDeletedVar bool) {
+func (l *MatrixLayer) deleteAtZ(x, y, z int, addDeletedVar bool) error {
 	if len(l.mat[y][x].objects) <= z {
-		log.Fatalf("deleteAtZ error: no object at z `%d`, all objects:\n%v", z, l.mat[y][x].objects)
+		return fmt.Errorf("DELETE ERROR deleteAtZ within layer %d '%v': no object at (%d,%d)*`%d`, all objects:\n%v", l.z, l.name, x, y, z, l.mat[y][x].objects)
 	}
 	if len(l.mat[y][x].objects) == 1 {
 		l.deleteAllAt(x, y, addDeletedVar)
-		return
+		return nil
 	}
+
+	if addDeletedVar {
+		l.mat[y][x].objects[z].MarkForDeletion()
+	}
+
 	l.mat[y][x].objects = append(l.mat[y][x].objects[:z], l.mat[y][x].objects[z+1:]...)
 	if len(l.mat[y][x].objects) == 0 {
 		l.numOfObjects--
+		return nil
 	}
+	for i := range l.mat[y][x].objects {
+		l.mat[y][x].objects[i].cellZ = i
+	}
+	return nil
 }
 
 //lint:ignore U1000 shut up lint
@@ -177,6 +187,9 @@ func (l MatrixLayer) printMatrix() {
 func (g *Game) ClearMatrixLayer(layerZ int) {
 	for y := range g.matrixLayers[layerZ].mat {
 		for x := range g.matrixLayers[layerZ].mat[y] {
+			for _, o := range g.matrixLayers[layerZ].mat[y][x].objects {
+				o.MarkForDeletion()
+			}
 			g.matrixLayers[layerZ].mat[y][x] = NewObjectCell(x, y)
 		}
 	}
@@ -211,9 +224,15 @@ func (l *MatrixLayer) checkForIntegrity() {
 					log.Printf("Layer '%s' has mismatched object x y: real (%d,%d) != (%d, %d):\n%#v",
 						l.name, x, y, o.x, o.y, o)
 				}
+				if o.IsMarkedForDeletion() {
+					log.Printf("Layer '%s' has undeleted object market for deletion: %#v",
+						l.name, o)
+				}
 				if l.ObjectAtZ(x, y, z) != o {
-					log.Printf("Layer '%s' has mismatched object z: real %d != %d:\n%#v\nwithin\n%#v",
-						l.name, len(l.AllObjectsAt(x, y)), z, o, obs)
+					if o.cellZ != z {
+						log.Printf("Layer '%s' has mismatched object z: real %d != %d:\n%#v\nwithin\n%#v",
+							l.name, len(l.AllObjectsAt(x, y)), z, o, obs)
+					}
 				}
 			}
 		}

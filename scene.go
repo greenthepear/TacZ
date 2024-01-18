@@ -5,11 +5,13 @@ import "math/rand"
 
 // Matrix layers Zs
 const (
-	backgroundLayerZ = iota //background ground
-	underEnemyLayerZ        //enemy spawned attackables
-	underLayerZ             //player spawned attackables and walkables
+	backgroundLayerZ = iota //Background ground
+	underEnemyLayerZ        //Enemy spawned attackables
+	underLayerZ             //Player spawned attackables and walkables
 
 	boardlayerZ //Pawns, enemy objects, obstacles
+
+	effectsLayerZ //Effects above board
 
 	underAttacksLayerZ //UI, for signifying chosen attack
 	attacksLayerZ      //Attack selection
@@ -68,6 +70,7 @@ func (g *Game) InitLayers() {
 	g.CreateNewMatrixLayerOnTop("EnemyUnder", generalGridSize, generalGridWidth, generalGridHeight, 0, 0)
 	g.CreateNewMatrixLayerOnTop("Under", generalGridSize, generalGridWidth, generalGridHeight, 0, 0)
 	g.CreateNewMatrixLayerOnTop("Board", generalGridSize, generalGridWidth, generalGridHeight, 0, 0)
+	g.CreateNewMatrixLayerOnTop("Effects", generalGridSize, generalGridWidth, generalGridHeight, 0, 0)
 
 	g.AddPawnToLayer(boardlayerZ, 1, 1)
 	g.AddPawnToLayer(boardlayerZ, 2, 1)

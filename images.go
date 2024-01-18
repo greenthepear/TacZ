@@ -66,5 +66,8 @@ func initImagePacks() map[string]*ImagePack { //TODO: just autoload
 	packs["Attacks"] = initOneImagePack(
 		"Attacks/shove", "Attacks/throwRock")
 
+	packs["Effects"] = initOneImagePack(
+		"Effects/trap")
+
 	return packs
 }

@@ -62,3 +62,11 @@ func (g *Game) InitPlayerTurn() {
 	}
 	g.playerTurn = true
 }
+
+func (g *Game) IsPawnTrapped(p *GameObject) bool {
+	eff := g.MatrixLayerAtZ(effectsLayerZ).FirstObjectAt(p.x, p.y)
+	if eff == nil {
+		return false
+	}
+	return eff.HasTag("entraps")
+}

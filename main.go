@@ -35,6 +35,16 @@ type Game struct {
 }
 
 func (g *Game) Update() error {
+	//g.MatrixLayerAtZ(underEnemyLayerZ).checkForIntegrity()
+	/*
+		for _, o := range g.enemies {
+			for _, c := range o.children {
+				if !c.IsMarkedForDeletion() {
+					c.checkForIntegrity()
+				}
+			}
+		}
+	*/
 	if g.playerTurn {
 		g.HandleClickControls()
 		g.CheckForTurnEndButton()
